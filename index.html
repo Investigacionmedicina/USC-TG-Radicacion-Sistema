@@ -12,7 +12,15 @@
     <div id="root"></div>
     <script>
         const e = React.createElement;
-        const { useState } = React;
+        const { useState, useEffect } = React;
+
+        function generarRadicado(fase) {
+            const ahora = new Date();
+            const año = ahora.getFullYear();
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const contador = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `USCTg-${fase}-${año}-${mes}-${contador}`;
+        }
 
         function LoginPage({ onLogin }) {
             const [email, setEmail] = useState('');
@@ -63,7 +71,90 @@
             );
         }
 
+        function StudentFase1({ email, onBack, onSave }) {
+            const [nombre, setNombre] = useState('');
+            const [cedula, setCedula] = useState('');
+            const [telefono, setTelefono] = useState('');
+            const [semestre, setSemestre] = useState('');
+            const [tema, setTema] = useState('');
+
+            const handleSubmit = () => {
+                if(!nombre || !semestre || !tema) {
+                    alert('Completa: nombre, semestre y tema');
+                    return;
+                }
+                const radicado = generarRadicado('F1');
+                onSave({
+                    radicado_f1: radicado,
+                    nombre,
+                    cedula,
+                    telefono,
+                    semestre,
+                    tema,
+                    email
+                });
+                alert('✅ Radicación exitosa!\n\nRadicado: ' + radicado);
+            };
+
+            return e('div', { className: 'min-h-screen bg-gray-50' },
+                e('header', { className: 'bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg' },
+                    e('div', { className: 'max-w-6xl mx-auto px-4 py-6 flex justify-between items-center' },
+                        e('h1', { className: 'text-2xl font-bold' }, 'FASE 1: Solicitud de Tutor'),
+                        e('button', { onClick: onBack, className: 'px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded-lg' }, '← ATRÁS')
+                    )
+                ),
+                e('main', { className: 'max-w-4xl mx-auto px-4 py-8' },
+                    e('div', { className: 'bg-white rounded-xl shadow-md p-8' },
+                        e('h2', { className: 'text-2xl font-bold mb-6' }, 'Información del Integrante'),
+                        e('div', { className: 'mb-6 p-6 bg-blue-50 rounded-lg border border-blue-200' },
+                            e('h3', { className: 'text-lg font-bold mb-4' }, '👤 INTEGRANTE 1 *'),
+                            e('div', { className: 'grid md:grid-cols-2 gap-4' },
+                                e('input', { type: 'text', placeholder: 'Nombre completo', value: nombre, onChange: (x) => setNombre(x.target.value), className: 'px-4 py-2 border rounded-lg' }),
+                                e('input', { type: 'text', placeholder: 'Cédula', value: cedula, onChange: (x) => setCedula(x.target.value), className: 'px-4 py-2 border rounded-lg' }),
+                                e('input', { type: 'email', value: email, disabled: true, className: 'px-4 py-2 border rounded-lg bg-gray-100' }),
+                                e('input', { type: 'tel', placeholder: 'Teléfono', value: telefono, onChange: (x) => setTelefono(x.target.value), className: 'px-4 py-2 border rounded-lg' }),
+                                e('select', { value: semestre, onChange: (x) => setSemestre(x.target.value), className: 'px-4 py-2 border rounded-lg' },
+                                    e('option', { value: '' }, 'Selecciona semestre'),
+                                    [7,8,9,10,11,12].map(s => e('option', { key: s, value: s }, `Semestre ${s}`))
+                                )
+                            )
+                        ),
+                        e('div', { className: 'mb-6 p-6 bg-indigo-50 rounded-lg border border-indigo-200' },
+                            e('h3', { className: 'text-lg font-bold mb-4' }, '📚 TEMA DEL TRABAJO *'),
+                            e('input', { type: 'text', placeholder: 'Describe tu tema', value: tema, onChange: (x) => setTema(x.target.value), className: 'w-full px-4 py-2 border rounded-lg' })
+                        ),
+                        e('div', { className: 'flex gap-4' },
+                            e('button', { onClick: onBack, className: 'flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold' }, 'CANCELAR'),
+                            e('button', { onClick: handleSubmit, className: 'flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold' }, '✓ ENVIAR RADICACIÓN')
+                        )
+                    )
+                )
+            );
+        }
+
         function StudentPage({ email, onLogout }) {
+            const [radicaciones, setRadicaciones] = useState(() => {
+                const saved = localStorage.getItem('usc_radicaciones');
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [currentForm, setCurrentForm] = useState('dashboard');
+
+            useEffect(() => {
+                localStorage.setItem('usc_radicaciones', JSON.stringify(radicaciones));
+            }, [radicaciones]);
+
+            const estudianteRads = radicaciones.filter(r => r.email === email);
+            const ultimaRad = estudianteRads[estudianteRads.length - 1];
+
+            const handleSaveFase1 = (data) => {
+                setRadicaciones([...radicaciones, data]);
+                setCurrentForm('dashboard');
+            };
+
+            if(currentForm === 'fase1') {
+                return e(StudentFase1, { email, onBack: () => setCurrentForm('dashboard'), onSave: handleSaveFase1 });
+            }
+
             return e('div', { className: 'min-h-screen bg-gray-50' },
                 e('header', { className: 'bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg' },
                     e('div', { className: 'max-w-6xl mx-auto px-4 py-6 flex justify-between items-center' },
@@ -76,18 +167,23 @@
                 ),
                 e('main', { className: 'max-w-6xl mx-auto px-4 py-8' },
                     e('div', { className: 'grid md:grid-cols-3 gap-6' },
-                        e('div', { className: 'p-6 rounded-xl border-2 bg-blue-100 border-blue-300' },
+                        e('div', { className: `p-6 rounded-xl border-2 ${!ultimaRad ? 'bg-blue-100 border-blue-300' : 'bg-green-100 border-green-300'}` },
                             e('h3', { className: 'font-bold text-lg mb-2' }, '📄 FASE 1'),
                             e('p', { className: 'text-sm opacity-90 mb-4' }, 'Solicitud de Tutor'),
-                            e('button', { className: 'w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700' }, '✓ RADICAR')
+                            ultimaRad ? [
+                                e('p', { className: 'text-sm font-semibold text-green-600 mb-2' }, '✓ RADIÇADA'),
+                                e('p', { className: 'text-xs text-gray-600' }, 'Radicado: ' + ultimaRad.radicado_f1)
+                            ] : e('button', { onClick: () => setCurrentForm('fase1'), className: 'w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold' }, '✓ RADICAR')
                         ),
                         e('div', { className: 'p-6 rounded-xl border-2 bg-gray-100 border-gray-300' },
                             e('h3', { className: 'font-bold text-lg mb-2' }, '📋 FASE 2'),
-                            e('p', { className: 'text-sm opacity-90' }, 'Aval Protocolo')
+                            e('p', { className: 'text-sm opacity-90' }, 'Aval Protocolo'),
+                            e('p', { className: 'text-xs text-gray-500 mt-4' }, 'Próximamente...')
                         ),
                         e('div', { className: 'p-6 rounded-xl border-2 bg-gray-100 border-gray-300' },
                             e('h3', { className: 'font-bold text-lg mb-2' }, '🎤 FASE 3'),
-                            e('p', { className: 'text-sm opacity-90' }, 'Sustentación')
+                            e('p', { className: 'text-sm opacity-90' }, 'Sustentación'),
+                            e('p', { className: 'text-xs text-gray-500 mt-4' }, 'Próximamente...')
                         )
                     )
                 )
@@ -95,6 +191,11 @@
         }
 
         function AdminPage({ email, onLogout }) {
+            const [radicaciones, setRadicaciones] = useState(() => {
+                const saved = localStorage.getItem('usc_radicaciones');
+                return saved ? JSON.parse(saved) : [];
+            });
+
             return e('div', { className: 'min-h-screen bg-gray-50' },
                 e('header', { className: 'bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg' },
                     e('div', { className: 'max-w-7xl mx-auto px-4 py-6 flex justify-between items-center' },
@@ -107,8 +208,36 @@
                 ),
                 e('main', { className: 'max-w-7xl mx-auto px-4 py-8' },
                     e('div', { className: 'bg-white rounded-xl shadow-md p-6' },
-                        e('h2', { className: 'text-xl font-bold mb-4' }, '📊 Radicaciones Fase 1'),
-                        e('p', { className: 'text-gray-600' }, 'Sin radicaciones aún')
+                        e('h2', { className: 'text-xl font-bold mb-4' }, '📊 FASE 1 - Solicitudes de Tutor'),
+                        e('div', { className: 'overflow-x-auto' },
+                            e('table', { className: 'w-full text-sm' },
+                                e('thead', { className: 'bg-gray-100 border-b' },
+                                    e('tr', {},
+                                        e('th', { className: 'px-4 py-2 text-left' }, 'Radicado'),
+                                        e('th', { className: 'px-4 py-2 text-left' }, 'Estudiante'),
+                                        e('th', { className: 'px-4 py-2 text-left' }, 'Email'),
+                                        e('th', { className: 'px-4 py-2 text-left' }, 'Tema'),
+                                        e('th', { className: 'px-4 py-2 text-left' }, 'Semestre'),
+                                        e('th', { className: 'px-4 py-2 text-center' }, 'Acción')
+                                    )
+                                ),
+                                e('tbody', {},
+                                    radicaciones.map((rad) =>
+                                        e('tr', { key: rad.radicado_f1, className: 'border-b hover:bg-gray-50' },
+                                            e('td', { className: 'px-4 py-2 font-semibold text-blue-600' }, rad.radicado_f1),
+                                            e('td', { className: 'px-4 py-2' }, rad.nombre),
+                                            e('td', { className: 'px-4 py-2' }, rad.email),
+                                            e('td', { className: 'px-4 py-2' }, rad.tema),
+                                            e('td', { className: 'px-4 py-2' }, rad.semestre),
+                                            e('td', { className: 'px-4 py-2 text-center' },
+                                                e('button', { className: 'px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 font-semibold' }, '✓ Aprobar')
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                        radicaciones.length === 0 && e('p', { className: 'text-center text-gray-600 py-8' }, 'Sin radicaciones aún')
                     )
                 )
             );
