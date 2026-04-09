@@ -1,9 +1,11 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "echo 'Static site'",
   "outputDirectory": "public",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
