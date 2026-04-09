@@ -22,6 +22,13 @@
 </head>
 <body>
     <div id="root"></div>
-    <script src="../src/app.js"></script>
+    <script>
+        // Cargar app.js directamente
+        fetch('/app.js')
+            .then(r => r.text())
+            .then(code => eval(code))
+            .catch(e => console.log('Cargando app.js...', e));
+    </script>
+    <script src="/app.js"></script>
 </body>
 </html>
