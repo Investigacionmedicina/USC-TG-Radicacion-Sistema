@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USC - Radicación TG 2026</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect } = React;
+
+        const generarRadicado = (fase) => {
+            const ahora = new Date();
+            const año = ahora.getFullYear();
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const contador = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `USCTg-${fase}-${año}-${mes}-${contador}`;
+        };
+
+        const esFase1Abierta = () => {
+            const ahora = new Date();
+            const día = ahora.getDate();
+            return día >= 1 && día <= 5;
+        };
+
+        const descargarExcel = (datos, nombre = 'radicaciones') => {
+            const ws = XLSX.utils.json_to_sheet(datos);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Radicaciones');
+            XLSX.writeFile(wb, `${nombre}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        };
+
+        const App = () => {
+            const [loggedIn, setLoggedIn] = useState(false);
+            const [userType, setUserType] = useState(null);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [showPassword, setShowPassword] = useState(false);
+
+            const [radicaciones, setRadicaciones] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('usc_radicaciones');
+                    return saved ? JSON.parse(saved) : [];
+                } catch {
+                    return [];
+                }
+            });
+
+            const [currentForm, setCurrentForm] = useState('login');
+            const [filtroBusqueda, setFiltroBusqueda] = useState('');
+            const [tabActual, setTabActual] = useState('fase1');
+
+            useEffect(() => {
+                localStorage.setItem('usc_radicaciones', JSON.stringify(radicaciones));
+            }, [radicaciones]);
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (!email || !password) {
+                    alert('Por favor completa todos los campos');
+                    return;
+                }
+
+                if (email === 'investigacionmedicina@usc.edu.co' && password === 'Investigacion2026$') {
+                    setUserType('admin');
+                    setLoggedIn(true);
+                    setCurrentForm('admin-dashboard');
+                } else if (email.endsWith('@usc.edu.co')) {
+                    setUserType('student');
+                    setLoggedIn(true);
+                    setCurrentForm('student-dashboard');
+                } else {
+                    alert('Email debe ser institucional (@usc.edu.co)');
+                }
+            };
+
+            const handleLogout = () => {
+                setLoggedIn(false);
+                setUserType(null);
+                setEmail('');
+                setPassword('');
+                setCurrentForm('login');
+            };
+
+            if (!loggedIn) {
+                return (
+                    <div style={{ background: 'linear-gradient(135deg, #003d82 0%, #1a5f9b 100%)' }} className="min-h-screen flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+                            <div className="text-center mb-8">
+                                <div className="w-16 h-16 bg-blue-600 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                                    <span className="text-white font-bold text-xl">USC</span>
+                                </div>
+                                <h1 className="text-3xl font-bold text-gray-800 mb-2">Radicación TG</h1>
+                                <p className="text-gray-600 text-sm">Sistema 2026 - Medicina</p>
+                            </div>
+
+                            <form onSubmit={handleLogin} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Correo institucional</label>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="tu@usc.edu.co"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="••••••••"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-3 top-2.5 text-gray-500"
+                                        >
+                                            {showPassword ? '🙈' : '👁️'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+                                >
+                                    Acceder
+                                </button>
+                            </form>
+
+                            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 space-y-2 text-sm">
+                                <p className="font-semibold text-blue-900">ℹ️ Información:</p>
+                                <p className="text-blue-800">Coordinadora: Contacta al administrador</p>
+                                <p className="text-blue-800">Estudiante: Usa tu correo @usc.edu.co</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (userType === 'student' && currentForm === 'student-dashboard') {
+                const estudianteRads = radicaciones.filter(r => r.integrante1?.email_inst === email);
+                const ultimaRad = estudianteRads[estudianteRads.length - 1];
+                const fase1Abierta = esFase1Abierta();
+
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <header className="bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg sticky top-0 z-50">
+                            <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
+                                <div>
+                                    <h1 className="text-2xl font-bold">Mi Trabajo de Grado</h1>
+                                    <p className="text-blue-100 text-sm">{email}</p>
+                                </div>
+                                <button onClick={handleLogout} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition">
+                                    🚪 Salir
+                                </button>
+                            </div>
+                        </header>
+
+                        <main className="max-w-6xl mx-auto px-4 py-8">
+                            {!fase1Abierta && !ultimaRad && (
+                                <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-lg mb-6">
+                                    <p className="font-semibold">⚠️ Fase 1 cerrada</p>
+                                    <p className="text-sm">Abre del 1 al 5 de cada mes</p>
+                                </div>
+                            )}
+
+                            <div className="grid md:grid-cols-3 gap-6 mb-8">
+                                <div className={`p-5 rounded-xl border-2 ${ultimaRad?.fase1?.estado === 'aprobado' ? 'bg-green-100 border-green-300' : fase1Abierta && !ultimaRad ? 'bg-blue-100 border-blue-300' : 'bg-gray-100 border-gray-300'}`}>
+                                    <h3 className="font-semibold text-lg mb-2">📄 FASE 1</h3>
+                                    <p className="text-xs opacity-90 mb-3">Solicitud Tutor</p>
+                                    <div className="text-sm space-y-2">
+                                        {ultimaRad?.fase1?.estado === 'aprobado' ? (
+                                            <>
+                                                <p className="font-medium">✓ APROBADA</p>
+                                                <p className="text-xs opacity-90">Tutores asignados</p>
+                                            </>
+                                        ) : fase1Abierta && !ultimaRad ? (
+                                            <>
+                                                <p className="font-medium">⏳ ABIERTA</p>
+                                                <p className="text-xs opacity-90">Radica ahora</p>
+                                                <button onClick={() => setCurrentForm('student-fase1')} className="mt-3 w-full bg-blue-600 text-white text-sm py-2 rounded-lg hover:bg-blue-700">
+                                                    RADICAR →
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p className="font-medium">⏳ Pendiente</p>
+                                                <p className="text-xs opacity-90">Coordinadora revisa</p>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className={`p-5 rounded-xl border-2 ${ultimaRad?.fase2?.estado === 'aprobado' ? 'bg-green-100 border-green-300' : ultimaRad?.fase1?.estado === 'aprobado' ? 'bg-blue-100 border-blue-300' : 'bg-gray-100 border-gray-300'}`}>
+                                    <h3 className="font-semibold text-lg mb-2">📋 FASE 2</h3>
+                                    <p className="text-xs opacity-90 mb-3">Aval Protocolo</p>
+                                    <div className="text-sm">
+                                        {ultimaRad?.fase1?.estado === 'aprobado' ? (
+                                            <>
+                                                <p className="font-medium">⏳ Abierta</p>
+                                                <p className="text-xs opacity-90">Máx 1 año</p>
+                                            </>
+                                        ) : (
+                                            <p className="opacity-90">Completa Fase 1</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className={`p-5 rounded-xl border-2 ${ultimaRad?.fase2?.estado === 'aprobado' ? 'bg-blue-100 border-blue-300' : 'bg-gray-100 border-gray-300'}`}>
+                                    <h3 className="font-semibold text-lg mb-2">🎤 FASE 3</h3>
+                                    <p className="text-xs opacity-90 mb-3">Sustentación</p>
+                                    <div className="text-sm">
+                                        {ultimaRad?.fase2?.estado === 'aprobado' ? (
+                                            <>
+                                                <p className="font-medium">⏳ Abierta</p>
+                                                <p className="text-xs opacity-90">Máx 1 año</p>
+                                            </>
+                                        ) : (
+                                            <p className="opacity-90">Completa Fase 2</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {ultimaRad && (
+                                <div className="bg-white rounded-xl shadow-md p-6">
+                                    <h2 className="text-xl font-bold mb-4">Radicados</h2>
+                                    <div className="grid md:grid-cols-3 gap-4">
+                                        {ultimaRad.radicado_f1 && <div><p className="text-sm text-gray-600">Fase 1</p><p className="font-semibold text-blue-600">{ultimaRad.radicado_f1}</p></div>}
+                                        {ultimaRad.radicado_f2 && <div><p className="text-sm text-gray-600">Fase 2</p><p className="font-semibold text-blue-600">{ultimaRad.radicado_f2}</p></div>}
+                                        {ultimaRad.radicado_f3 && <div><p className="text-sm text-gray-600">Fase 3</p><p className="font-semibold text-blue-600">{ultimaRad.radicado_f3}</p></div>}
+                                    </div>
+                                </div>
+                            )}
+                        </main>
+                    </div>
+                );
+            }
+
+            if (userType === 'student' && currentForm === 'student-fase1') {
+                const [fase1Data, setFase1Data] = useState({
+                    integrante1: { nombre: '', cedula: '', email_inst: email, telefono: '', semestre: '' },
+                    modalidad: 'Investigación',
+                    tema: '',
+                    tiene_tema: true
+                });
+
+                const handleSubmitFase1 = () => {
+                    if (!fase1Data.integrante1.nombre || !fase1Data.integrante1.semestre) {
+                        alert('Completa todos los campos obligatorios');
+                        return;
+                    }
+
+                    const radicadoF1 = generarRadicado('F1');
+                    setRadicaciones([...radicaciones, {
+                        id: Date.now(),
+                        radicado_f1: radicadoF1,
+                        radicado_f2: null,
+                        radicado_f3: null,
+                        modalidad: fase1Data.modalidad,
+                        tema: fase1Data.tema,
+                        integrante1: fase1Data.integrante1,
+                        fase1: { estado: 'pendiente' },
+                        fase2: { estado: 'no_iniciada' },
+                        fase3: { estado: 'no_iniciada' }
+                    }]);
+                    alert('✅ Radicación exitosa!\n\nRadicado: ' + radicadoF1);
+                    setCurrentForm('student-dashboard');
+                };
+
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <header className="bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg">
+                            <div className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
+                                <h1 className="text-2xl font-bold">FASE 1: Solicitud de Tutor</h1>
+                                <button onClick={() => setCurrentForm('student-dashboard')} className="px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded-lg">
+                                    ← ATRÁS
+                                </button>
+                            </div>
+                        </header>
+
+                        <main className="max-w-4xl mx-auto px-4 py-8">
+                            <div className="bg-white rounded-xl shadow-md p-8">
+                                <h2 className="text-2xl font-bold mb-6">Información de Integrantes</h2>
+
+                                <div className="mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                                    <h3 className="text-lg font-semibold mb-4">👤 INTEGRANTE 1 *</h3>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <input type="text" placeholder="Nombre completo" value={fase1Data.integrante1.nombre} onChange={(e) => setFase1Data({ ...fase1Data, integrante1: { ...fase1Data.integrante1, nombre: e.target.value } })} className="px-4 py-2 border border-gray-300 rounded-lg" />
+                                        <input type="text" placeholder="Cédula" value={fase1Data.integrante1.cedula} onChange={(e) => setFase1Data({ ...fase1Data, integrante1: { ...fase1Data.integrante1, cedula: e.target.value } })} className="px-4 py-2 border border-gray-300 rounded-lg" />
+                                        <input type="email" value={fase1Data.integrante1.email_inst} disabled className="px-4 py-2 border border-gray-300 rounded-lg bg-gray-100" />
+                                        <input type="tel" placeholder="Teléfono" value={fase1Data.integrante1.telefono} onChange={(e) => setFase1Data({ ...fase1Data, integrante1: { ...fase1Data.integrante1, telefono: e.target.value } })} className="px-4 py-2 border border-gray-300 rounded-lg" />
+                                        <select value={fase1Data.integrante1.semestre} onChange={(e) => setFase1Data({ ...fase1Data, integrante1: { ...fase1Data.integrante1, semestre: e.target.value } })} className="px-4 py-2 border border-gray-300 rounded-lg">
+                                            <option value="">Selecciona semestre</option>
+                                            {[7, 8, 9, 10, 11, 12].map(s => <option key={s} value={s}>Semestre {s}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="mb-8 p-6 bg-indigo-50 rounded-lg border border-indigo-200">
+                                    <h3 className="text-lg font-semibold mb-4">📚 DATOS DEL PROYECTO *</h3>
+                                    <select value={fase1Data.modalidad} onChange={(e) => setFase1Data({ ...fase1Data, modalidad: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4">
+                                        <option value="Investigación">Investigación</option>
+                                        <option value="Monografía">Monografía</option>
+                                        <option value="Diplomado">Diplomado</option>
+                                    </select>
+                                    <input type="text" placeholder="Tema/Área temática" value={fase1Data.tema} onChange={(e) => setFase1Data({ ...fase1Data, tema: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <button onClick={() => setCurrentForm('student-dashboard')} className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold">
+                                        CANCELAR
+                                    </button>
+                                    <button onClick={handleSubmitFase1} className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                                        ✓ ENVIAR
+                                    </button>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                );
+            }
+
+            if (userType === 'admin' && currentForm === 'admin-dashboard') {
+                const radsFiltradas = radicaciones.filter(r => !filtroBusqueda || r.integrante1?.nombre?.toLowerCase().includes(filtroBusqueda.toLowerCase()));
+
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <header className="bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg sticky top-0 z-50">
+                            <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
+                                <div>
+                                    <h1 className="text-3xl font-bold">Panel Coordinadora</h1>
+                                    <p className="text-blue-100 text-sm">{email}</p>
+                                </div>
+                                <button onClick={handleLogout} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg">
+                                    🚪 Salir
+                                </button>
+                            </div>
+                        </header>
+
+                        <main className="max-w-7xl mx-auto px-4 py-8">
+                            <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+                                <h2 className="text-xl font-bold mb-4">🔍 Filtros</h2>
+                                <div className="flex gap-4">
+                                    <input type="text" placeholder="Buscar estudiante..." value={filtroBusqueda} onChange={(e) => setFiltroBusqueda(e.target.value)} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg" />
+                                    <button onClick={() => descargarExcel(radsFiltradas, `Radicaciones_${tabActual}`)} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">
+                                        📥 Descargar Excel
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-xl shadow-md p-6">
+                                <div className="flex gap-2 border-b mb-6">
+                                    {['fase1', 'fase2', 'fase3'].map(tab => (
+                                        <button key={tab} onClick={() => setTabActual(tab)} className={`px-6 py-3 font-semibold ${tabActual === tab ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600'}`}>
+                                            {tab.toUpperCase()}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                        <thead className="bg-gray-100 border-b">
+                                            <tr>
+                                                <th className="px-4 py-3 text-left">Radicado</th>
+                                                <th className="px-4 py-3 text-left">Estudiante</th>
+                                                <th className="px-4 py-3 text-left">Email</th>
+                                                <th className="px-4 py-3 text-left">Estado</th>
+                                                <th className="px-4 py-3 text-center">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {radsFiltradas.map((rad) => {
+                                                const radicado = rad[`radicado_${tabActual.replace('fase', 'f')}`];
+                                                const estado = rad[tabActual]?.estado;
+                                                return (
+                                                    <tr key={rad.id} className="border-b hover:bg-gray-50">
+                                                        <td className="px-4 py-3 font-semibold">{radicado}</td>
+                                                        <td className="px-4 py-3">{rad.integrante1?.nombre}</td>
+                                                        <td className="px-4 py-3">{rad.integrante1?.email_inst}</td>
+                                                        <td className="px-4 py-3">
+                                                            <span className={`px-2 py-1 rounded text-xs font-semibold ${estado === 'aprobado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                                                {estado === 'aprobado' ? '✓ Aprobado' : '⏳ Pendiente'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
+                                                            {estado !== 'aprobado' && (
+                                                                <button onClick={() => {
+                                                                    const nuevasRads = radicaciones.map(r => r.id === rad.id ? { ...r, [tabActual]: { estado: 'aprobado' } } : r);
+                                                                    setRadicaciones(nuevasRads);
+                                                                    alert('✓ Aprobado');
+                                                                }} className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700">
+                                                                    Aprobar
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {radsFiltradas.length === 0 && <p className="text-center text-gray-600 py-8">Sin radicaciones</p>}
+                            </div>
+                        </main>
+                    </div>
+                );
+            }
+
+            return null;
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
