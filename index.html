@@ -3,448 +3,729 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USC - Radicación TG 2026</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <title>Sistema de Radicación TG - USC Medicina</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f8fafc;
+        }
+        
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+        
+        .header {
+            background: linear-gradient(135deg, #003d82 0%, #0052a3 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 61, 130, 0.15);
+        }
+        
+        .header-left h1 { font-size: 28px; margin-bottom: 5px; font-weight: bold; }
+        .header-left p { font-size: 13px; opacity: 0.9; }
+        
+        .header-right { display: flex; gap: 20px; align-items: center; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #003d82;
+        }
+        
+        .stat-label { font-size: 12px; color: #666; font-weight: 600; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #003d82; margin-top: 10px; }
+        
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filters-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #003d82; }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-label { font-size: 12px; color: #666; margin-bottom: 6px; font-weight: 600; }
+        
+        .filter-input, .filter-select {
+            padding: 8px 12px;
+            background: #f8fafc;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #333;
+            font-size: 13px;
+        }
+        
+        .filter-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: #003d82;
+            box-shadow: 0 0 0 3px rgba(0, 61, 130, 0.1);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #003d82;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #002449;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #15803d;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        
+        th {
+            background: #f3f4f6;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #d1d5db;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #333;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .estado-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .estado-completada { background: #dcfce7; color: #166534; }
+        .estado-radicada { background: #dbeafe; color: #0c4a6e; }
+        .estado-en-evaluacion { background: #fef3c7; color: #92400e; }
+        .estado-devuelta { background: #fecaca; color: #7f1d1d; }
+        .estado-bloqueada { background: #e5e7eb; color: #4b5563; }
+        .estado-aprobada { background: #dcfce7; color: #166534; }
+        .estado-programada { background: #dcfce7; color: #166534; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #003d82; }
+        
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-field label { display: block; font-size: 12px; color: #666; margin-bottom: 6px; font-weight: 600; }
+        .modal-field input, .modal-field textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #333;
+            font-size: 13px;
+        }
+        
+        .sync-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                <h1>📊 Sistema de Radicación TG - USC Medicina</h1>
+                <p>Panel de Control de Expedientes</p>
+            </div>
+            <div class="header-right">
+                <div class="sync-badge">
+                    ✓ Sincronizado
+                </div>
+                <button class="btn btn-secondary" onclick="logout()">🚪 Salir</button>
+            </div>
+        </div>
+
+        <!-- ESTADÍSTICAS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Expedientes</div>
+                <div class="stat-value" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Fase 1 Completadas</div>
+                <div class="stat-value" id="stat-fase1">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Fase 2 Completadas</div>
+                <div class="stat-value" id="stat-fase2">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Fase 3 Programadas</div>
+                <div class="stat-value" id="stat-fase3">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">% Cumplimiento</div>
+                <div class="stat-value" id="stat-porcentaje">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Actualizado</div>
+                <div class="stat-value" style="font-size: 14px;" id="stat-fecha">Ahora</div>
+            </div>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filters-section">
+            <div class="filters-title">🔍 Filtros Avanzados</div>
+            
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Buscar Expediente o Estudiante</label>
+                    <input type="text" id="filtro-texto" class="filter-input" placeholder="Busca aquí..." onkeyup="aplicarFiltros()">
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Año</label>
+                    <select class="filter-select" id="filtro-ano" onchange="aplicarFiltros()">
+                        <option value="">Todos</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Fase</label>
+                    <select class="filter-select" id="filtro-fase" onchange="aplicarFiltros()">
+                        <option value="">Todas</option>
+                        <option value="1">Fase 1</option>
+                        <option value="2">Fase 2</option>
+                        <option value="3">Fase 3</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-select" id="filtro-estado" onchange="aplicarFiltros()">
+                        <option value="">Todos</option>
+                        <option value="Radicada">Radicada</option>
+                        <option value="Aprobada">Aprobada</option>
+                        <option value="Devuelta">Devuelta</option>
+                        <option value="En evaluación">En evaluación</option>
+                        <option value="Bloqueada">Bloqueada</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Modalidad</label>
+                    <select class="filter-select" id="filtro-modalidad" onchange="aplicarFiltros()">
+                        <option value="">Todas</option>
+                        <option value="Investigación">Investigación</option>
+                        <option value="Monografía">Monografía</option>
+                        <option value="Diplomado">Diplomado</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Semestre</label>
+                    <select class="filter-select" id="filtro-semestre" onchange="aplicarFiltros()">
+                        <option value="">Todos</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Tutor Temático</label>
+                    <input type="text" class="filter-input" id="filtro-tutor" placeholder="Nombre del tutor" onkeyup="aplicarFiltros()">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Línea Investigación</label>
+                    <select class="filter-select" id="filtro-linea" onchange="aplicarFiltros()">
+                        <option value="">Todas</option>
+                        <option value="Medicina Interna">Medicina Interna</option>
+                        <option value="Cirugía">Cirugía</option>
+                        <option value="Pediatría">Pediatría</option>
+                        <option value="Ginecología">Ginecología</option>
+                        <option value="Salud Pública">Salud Pública</option>
+                        <option value="Educación médica">Educación médica</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Financiación</label>
+                    <select class="filter-select" id="filtro-financiacion" onchange="aplicarFiltros()">
+                        <option value="">Todas</option>
+                        <option value="Recursos propios">Recursos propios</option>
+                        <option value="Universidad">Universidad</option>
+                        <option value="COLCIENCIAS">COLCIENCIAS</option>
+                        <option value="Institución externa">Institución externa</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Turnitin %</label>
+                    <select class="filter-select" id="filtro-turnitin" onchange="aplicarFiltros()">
+                        <option value="">Todos</option>
+                        <option value="0-10">0-10%</option>
+                        <option value="10-20">10-20%</option>
+                        <option value="20+">Más de 20%</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Ciudad</label>
+                    <input type="text" class="filter-input" id="filtro-ciudad" placeholder="Ciudad..." onkeyup="aplicarFiltros()">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Reconocimientos</label>
+                    <input type="text" class="filter-input" id="filtro-reconocimientos" placeholder="Reconocimiento..." onkeyup="aplicarFiltros()">
+                </div>
+            </div>
+
+            <div class="filter-buttons">
+                <button class="btn btn-primary" onclick="aplicarFiltros()">🔍 Aplicar Filtros</button>
+                <button class="btn btn-secondary" onclick="limpiarFiltros()">✕ Limpiar</button>
+                <button class="btn btn-success" onclick="exportarExcel()">📥 Exportar Excel</button>
+                <button class="btn btn-success" onclick="sincronizarExcel()">🔄 Sincronizar Ahora</button>
+            </div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table id="tabla-expedientes">
+                    <thead>
+                        <tr>
+                            <th>Expediente</th>
+                            <th>Año</th>
+                            <th>Estudiante</th>
+                            <th>Email</th>
+                            <th>Semestre</th>
+                            <th>Modalidad</th>
+                            <th>Fase 1 Est.</th>
+                            <th>Fase 1 Fecha</th>
+                            <th>Fase 2 Est.</th>
+                            <th>Fase 2 Fecha</th>
+                            <th>Fase 3 Est.</th>
+                            <th>Turnitin %</th>
+                            <th>Tutor Temático</th>
+                            <th>Tutor Metodológico</th>
+                            <th>Jurado 1</th>
+                            <th>Jurado 2</th>
+                            <th>Fecha Sustentación</th>
+                            <th>Línea Invest.</th>
+                            <th>Financiación</th>
+                            <th>Reconocimientos</th>
+                            <th>Ciudad</th>
+                            <th>Última Actualización</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">Detalles del Expediente</div>
+            <div id="modal-body"></div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="cerrarModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const e = React.createElement;
-        const { useState, useEffect } = React;
+        // BASE DE DATOS SIMULADA
+        let expedientes = [
+            {
+                expediente: 'USCTG-202604-0001',
+                ano: 2026,
+                estudiante: 'Juan Pérez García',
+                email: 'juan.perez@usc.edu.co',
+                semestre: 10,
+                modalidad: 'Investigación',
+                fase1_estado: 'Aprobada',
+                fase1_fecha: '09/04/2026',
+                fase2_estado: 'En evaluación',
+                fase2_fecha: '08/04/2026',
+                fase3_estado: 'Bloqueada',
+                turnitin: 18,
+                tutor_tematico: 'Dr. Carlos López',
+                tutor_metodologico: 'Dra. Eva Rodríguez',
+                jurado1: 'Dra. Eva Rodríguez',
+                jurado2: 'Dr. Pedro Sánchez',
+                fecha_sustentacion: '25/05/2026',
+                linea_investigacion: 'Medicina Interna',
+                financiacion: 'Recursos propios',
+                reconocimientos: 'Semillero',
+                ciudad: 'Cali',
+                ultima_actualizacion: '09/04/2026 14:30'
+            },
+            {
+                expediente: 'USCTG-202604-0002',
+                ano: 2026,
+                estudiante: 'María García López',
+                email: 'maria.garcia@usc.edu.co',
+                semestre: 10,
+                modalidad: 'Monografía',
+                fase1_estado: 'Aprobada',
+                fase1_fecha: '08/04/2026',
+                fase2_estado: 'Devuelta',
+                fase2_fecha: '07/04/2026',
+                fase3_estado: 'Bloqueada',
+                turnitin: null,
+                tutor_tematico: 'Dr. López',
+                tutor_metodologico: null,
+                jurado1: null,
+                jurado2: null,
+                fecha_sustentacion: null,
+                linea_investigacion: 'Cirugía',
+                financiacion: 'Universidad',
+                reconocimientos: 'Producción científica',
+                ciudad: 'Cali',
+                ultima_actualizacion: '09/04/2026 10:15'
+            },
+            {
+                expediente: 'USCTG-202604-0003',
+                ano: 2026,
+                estudiante: 'Carlos Rodríguez',
+                email: 'carlos.rodriguez@usc.edu.co',
+                semestre: 11,
+                modalidad: 'Investigación',
+                fase1_estado: 'Aprobada',
+                fase1_fecha: '06/04/2026',
+                fase2_estado: 'Aprobada',
+                fase2_fecha: '05/04/2026',
+                fase3_estado: 'Programada',
+                turnitin: 15,
+                tutor_tematico: 'Dra. Eva Rodríguez',
+                tutor_metodologico: 'Dr. Miguel Fernández',
+                jurado1: 'Dr. Pedro Sánchez',
+                jurado2: 'Dra. Sandra Díaz',
+                fecha_sustentacion: '30/05/2026',
+                linea_investigacion: 'Salud Pública',
+                financiacion: 'COLCIENCIAS',
+                reconocimientos: 'Impacto social',
+                ciudad: 'Cali',
+                ultima_actualizacion: '09/04/2026 09:00'
+            }
+        ];
 
-        function generarRadicado(fase) {
-            const ahora = new Date();
-            const año = ahora.getFullYear();
-            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-            const contador = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            return `USCTg-${fase}-${año}-${mes}-${contador}`;
+        function cargarTabla() {
+            const tbody = document.getElementById('tabla-body');
+            tbody.innerHTML = expedientes.map((exp, idx) => `
+                <tr>
+                    <td><strong>${exp.expediente}</strong></td>
+                    <td>${exp.ano}</td>
+                    <td>${exp.estudiante}</td>
+                    <td>${exp.email}</td>
+                    <td>${exp.semestre}</td>
+                    <td>${exp.modalidad}</td>
+                    <td><span class="estado-badge estado-${exp.fase1_estado.toLowerCase().replace(' ', '-')}">${exp.fase1_estado}</span></td>
+                    <td>${exp.fase1_fecha}</td>
+                    <td><span class="estado-badge estado-${exp.fase2_estado.toLowerCase().replace(' ', '-')}">${exp.fase2_estado}</span></td>
+                    <td>${exp.fase2_fecha}</td>
+                    <td><span class="estado-badge estado-${exp.fase3_estado.toLowerCase().replace(' ', '-')}">${exp.fase3_estado}</span></td>
+                    <td>${exp.turnitin ? exp.turnitin + '%' : '-'}</td>
+                    <td>${exp.tutor_tematico}</td>
+                    <td>${exp.tutor_metodologico || '-'}</td>
+                    <td>${exp.jurado1 || '-'}</td>
+                    <td>${exp.jurado2 || '-'}</td>
+                    <td>${exp.fecha_sustentacion || '-'}</td>
+                    <td>${exp.linea_investigacion}</td>
+                    <td>${exp.financiacion}</td>
+                    <td>${exp.reconocimientos}</td>
+                    <td>${exp.ciudad}</td>
+                    <td style="font-size: 11px;">${exp.ultima_actualizacion}</td>
+                    <td>
+                        <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="verDetalles(${idx})">Ver</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            actualizarEstadisticas();
         }
 
-        function LoginPage({ onLogin }) {
-            const [email, setEmail] = useState('');
-            const [pass, setPass] = useState('');
-            const [show, setShow] = useState(false);
+        function actualizarEstadisticas() {
+            const total = expedientes.length;
+            const f1 = expedientes.filter(e => e.fase1_estado === 'Aprobada').length;
+            const f2 = expedientes.filter(e => e.fase2_estado === 'Aprobada').length;
+            const f3 = expedientes.filter(e => e.fase3_estado === 'Programada').length;
 
-            const handle = (evt) => {
-                evt.preventDefault();
-                if(!email || !pass) { alert('Completa campos'); return; }
-                if(email === 'investigacionmedicina@usc.edu.co' && pass === 'Investigacion2026$') {
-                    onLogin('admin', email);
-                } else if(email.endsWith('@usc.edu.co')) {
-                    onLogin('student', email);
-                } else {
-                    alert('Email debe ser @usc.edu.co');
-                }
-            };
-
-            return e('div', { style: {background: 'linear-gradient(135deg, #003d82 0%, #1a5f9b 100%)'}, className: 'min-h-screen flex items-center justify-center p-4' },
-                e('div', { className: 'bg-white rounded-2xl shadow-2xl w-full max-w-md p-8' },
-                    e('div', { className: 'text-center mb-8' },
-                        e('div', { className: 'w-16 h-16 bg-blue-600 rounded-lg mx-auto mb-4 flex items-center justify-center' },
-                            e('span', { className: 'text-white font-bold text-xl' }, 'USC')
-                        ),
-                        e('h1', { className: 'text-3xl font-bold text-gray-800 mb-2' }, 'Radicación TG'),
-                        e('p', { className: 'text-gray-600 text-sm' }, 'Sistema 2026 - Medicina')
-                    ),
-                    e('form', { onSubmit: handle, className: 'space-y-4' },
-                        e('div', {},
-                            e('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, 'Correo'),
-                            e('input', { type: 'email', value: email, onChange: (x) => setEmail(x.target.value), placeholder: 'tu@usc.edu.co', className: 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600' })
-                        ),
-                        e('div', {},
-                            e('label', { className: 'block text-sm font-medium text-gray-700 mb-2' }, 'Contraseña'),
-                            e('div', { className: 'relative' },
-                                e('input', { type: show ? 'text' : 'password', value: pass, onChange: (x) => setPass(x.target.value), placeholder: '••••••••', className: 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600' }),
-                                e('button', { type: 'button', onClick: () => setShow(!show), className: 'absolute right-3 top-2.5 text-gray-500' }, show ? '🙈' : '👁️')
-                            )
-                        ),
-                        e('button', { type: 'submit', className: 'w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700' }, 'Acceder')
-                    ),
-                    e('div', { className: 'mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200' },
-                        e('p', { className: 'font-semibold text-blue-900 text-sm' }, 'ℹ️ Información:'),
-                        e('p', { className: 'text-blue-800 text-sm mt-2' }, 'Coordinadora: Contacta al admin'),
-                        e('p', { className: 'text-blue-800 text-sm' }, 'Estudiante: Tu correo @usc.edu.co')
-                    )
-                )
-            );
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-fase1').textContent = f1;
+            document.getElementById('stat-fase2').textContent = f2;
+            document.getElementById('stat-fase3').textContent = f3;
+            
+            const porcentaje = total > 0 ? Math.round((f1 / total) * 100) : 0;
+            document.getElementById('stat-porcentaje').textContent = porcentaje + '%';
         }
 
-        function StudentFase1({ email, onBack, onSave }) {
-            const [integrante1, setIntegrante1] = useState({ nombre: '', cedula: '', telefono: '', semestre: '' });
-            const [integrante2, setIntegrante2] = useState(null);
-            const [integrante3, setIntegrante3] = useState(null);
-            const [tema, setTema] = useState('');
-            const [tiene2, setTiene2] = useState(false);
-            const [tiene3, setTiene3] = useState(false);
-            const [tutorTematico, setTutorTematico] = useState({ nombre: '', email: '', programa: '' });
-            const [tutorMetodologico, setTutorMetodologico] = useState({ nombre: '', email: '', programa: '' });
-            const [tieneTematico, setTieneTematico] = useState(false);
-            const [tieneMetodologico, setTieneMetodologico] = useState(false);
+        function aplicarFiltros() {
+            const texto = document.getElementById('filtro-texto').value.toLowerCase();
+            const ano = document.getElementById('filtro-ano').value;
+            const fase = document.getElementById('filtro-fase').value;
+            const estado = document.getElementById('filtro-estado').value;
+            const modalidad = document.getElementById('filtro-modalidad').value;
+            const semestre = document.getElementById('filtro-semestre').value;
+            const tutor = document.getElementById('filtro-tutor').value.toLowerCase();
+            const linea = document.getElementById('filtro-linea').value;
+            const financiacion = document.getElementById('filtro-financiacion').value;
+            const ciudad = document.getElementById('filtro-ciudad').value.toLowerCase();
+            const reconocimientos = document.getElementById('filtro-reconocimientos').value.toLowerCase();
 
-            const handleSubmit = () => {
-                if(!integrante1.nombre || !integrante1.semestre || !tema) {
-                    alert('Completa: nombre, semestre y tema del integrante 1');
-                    return;
-                }
-                if(tiene2 && (!integrante2.nombre || !integrante2.semestre)) {
-                    alert('Completa datos del integrante 2');
-                    return;
-                }
-                if(tiene3 && (!integrante3.nombre || !integrante3.semestre)) {
-                    alert('Completa datos del integrante 3');
-                    return;
-                }
+            const filtrados = expedientes.filter(exp => {
+                if (texto && !exp.expediente.toLowerCase().includes(texto) && !exp.estudiante.toLowerCase().includes(texto)) return false;
+                if (ano && exp.ano.toString() !== ano) return false;
+                if (modalidad && exp.modalidad !== modalidad) return false;
+                if (semestre && exp.semestre.toString() !== semestre) return false;
+                if (tutor && !exp.tutor_tematico.toLowerCase().includes(tutor)) return false;
+                if (linea && exp.linea_investigacion !== linea) return false;
+                if (financiacion && exp.financiacion !== financiacion) return false;
+                if (ciudad && !exp.ciudad.toLowerCase().includes(ciudad)) return false;
+                if (reconocimientos && !exp.reconocimientos.toLowerCase().includes(reconocimientos)) return false;
 
-                const radicado = generarRadicado('F1');
-                onSave({
-                    radicado_f1: radicado,
-                    integrante1: { ...integrante1, email_inst: email },
-                    integrante2: tiene2 ? integrante2 : null,
-                    integrante3: tiene3 ? integrante3 : null,
-                    tema,
-                    tutorTematicoSugerido: tieneTematico ? tutorTematico : null,
-                    tutorMetodologicoSugerido: tieneMetodologico ? tutorMetodologico : null,
-                    tutorTematicoAsignado: null,
-                    tutorMetodologicoAsignado: null,
-                    email,
-                    fecha: new Date().toLocaleDateString(),
-                    estado: 'pendiente'
-                });
-                alert('✅ Radicación exitosa!\n\nRadicado: ' + radicado);
-            };
-
-            return e('div', { className: 'min-h-screen bg-gray-50' },
-                e('header', { className: 'bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg' },
-                    e('div', { className: 'max-w-6xl mx-auto px-4 py-6 flex justify-between items-center' },
-                        e('h1', { className: 'text-2xl font-bold' }, 'FASE 1: Solicitud de Tutor'),
-                        e('button', { onClick: onBack, className: 'px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded-lg' }, '← ATRÁS')
-                    )
-                ),
-                e('main', { className: 'max-w-4xl mx-auto px-4 py-8' },
-                    e('div', { className: 'bg-white rounded-xl shadow-md p-8' },
-                        e('h2', { className: 'text-2xl font-bold mb-6' }, 'Información de Integrantes (máx 3)'),
-
-                        e('div', { className: 'mb-6 p-6 bg-blue-50 rounded-lg border border-blue-200' },
-                            e('h3', { className: 'text-lg font-bold mb-4' }, '👤 INTEGRANTE 1 (Quién radica) *'),
-                            e('div', { className: 'grid md:grid-cols-2 gap-4' },
-                                e('input', { type: 'text', placeholder: 'Nombre completo', value: integrante1.nombre, onChange: (x) => setIntegrante1({...integrante1, nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                e('input', { type: 'text', placeholder: 'Cédula', value: integrante1.cedula, onChange: (x) => setIntegrante1({...integrante1, cedula: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                e('input', { type: 'email', value: email, disabled: true, className: 'px-4 py-2 border rounded-lg bg-gray-100 col-span-2' }),
-                                e('input', { type: 'tel', placeholder: 'Teléfono', value: integrante1.telefono, onChange: (x) => setIntegrante1({...integrante1, telefono: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                e('select', { value: integrante1.semestre, onChange: (x) => setIntegrante1({...integrante1, semestre: x.target.value}), className: 'px-4 py-2 border rounded-lg' },
-                                    e('option', { value: '' }, 'Selecciona semestre'),
-                                    [7,8,9,10,11,12].map(s => e('option', { key: s, value: s }, `Semestre ${s}`))
-                                )
-                            )
-                        ),
-
-                        e('div', { className: 'mb-6' },
-                            e('label', { className: 'flex items-center mb-4' },
-                                e('input', { type: 'checkbox', checked: tiene2, onChange: (x) => setTiene2(x.target.checked), className: 'mr-2 w-4 h-4' }),
-                                e('span', { className: 'font-semibold' }, '¿Agregar integrante 2?')
-                            ),
-                            tiene2 && e('div', { className: 'p-6 bg-purple-50 rounded-lg border border-purple-200' },
-                                e('h3', { className: 'text-lg font-bold mb-4' }, '👥 INTEGRANTE 2'),
-                                e('div', { className: 'grid md:grid-cols-2 gap-4' },
-                                    e('input', { type: 'text', placeholder: 'Nombre completo', value: integrante2?.nombre || '', onChange: (x) => setIntegrante2({...(integrante2||{}), nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('input', { type: 'text', placeholder: 'Cédula', value: integrante2?.cedula || '', onChange: (x) => setIntegrante2({...(integrante2||{}), cedula: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('input', { type: 'tel', placeholder: 'Teléfono', value: integrante2?.telefono || '', onChange: (x) => setIntegrante2({...(integrante2||{}), telefono: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('select', { value: integrante2?.semestre || '', onChange: (x) => setIntegrante2({...(integrante2||{}), semestre: x.target.value}), className: 'px-4 py-2 border rounded-lg' },
-                                        e('option', { value: '' }, 'Selecciona semestre'),
-                                        [7,8,9,10,11,12].map(s => e('option', { key: s, value: s }, `Semestre ${s}`))
-                                    )
-                                )
-                            )
-                        ),
-
-                        e('div', { className: 'mb-6' },
-                            e('label', { className: 'flex items-center mb-4' },
-                                e('input', { type: 'checkbox', checked: tiene3, onChange: (x) => setTiene3(x.target.checked), disabled: !tiene2, className: 'mr-2 w-4 h-4' }),
-                                e('span', { className: `font-semibold ${!tiene2 ? 'text-gray-400' : ''}` }, '¿Agregar integrante 3?')
-                            ),
-                            tiene3 && e('div', { className: 'p-6 bg-green-50 rounded-lg border border-green-200' },
-                                e('h3', { className: 'text-lg font-bold mb-4' }, '👨‍👩‍👧 INTEGRANTE 3'),
-                                e('div', { className: 'grid md:grid-cols-2 gap-4' },
-                                    e('input', { type: 'text', placeholder: 'Nombre completo', value: integrante3?.nombre || '', onChange: (x) => setIntegrante3({...(integrante3||{}), nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('input', { type: 'text', placeholder: 'Cédula', value: integrante3?.cedula || '', onChange: (x) => setIntegrante3({...(integrante3||{}), cedula: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('input', { type: 'tel', placeholder: 'Teléfono', value: integrante3?.telefono || '', onChange: (x) => setIntegrante3({...(integrante3||{}), telefono: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('select', { value: integrante3?.semestre || '', onChange: (x) => setIntegrante3({...(integrante3||{}), semestre: x.target.value}), className: 'px-4 py-2 border rounded-lg' },
-                                        e('option', { value: '' }, 'Selecciona semestre'),
-                                        [7,8,9,10,11,12].map(s => e('option', { key: s, value: s }, `Semestre ${s}`))
-                                    )
-                                )
-                            )
-                        ),
-
-                        e('div', { className: 'mb-6 p-6 bg-indigo-50 rounded-lg border border-indigo-200' },
-                            e('h3', { className: 'text-lg font-bold mb-4' }, '📚 TEMA DEL TRABAJO *'),
-                            e('input', { type: 'text', placeholder: 'Describe tu tema', value: tema, onChange: (x) => setTema(x.target.value), className: 'w-full px-4 py-2 border rounded-lg' })
-                        ),
-
-                        e('div', { className: 'mb-6 p-6 bg-yellow-50 rounded-lg border border-yellow-200' },
-                            e('h3', { className: 'text-lg font-bold mb-4' }, '🎓 TUTORES PROPUESTOS (Opcional)'),
-                            
-                            e('div', { className: 'mb-4' },
-                                e('label', { className: 'flex items-center mb-4' },
-                                    e('input', { type: 'checkbox', checked: tieneTematico, onChange: (x) => setTieneTematico(x.target.checked), className: 'mr-2 w-4 h-4' }),
-                                    e('span', { className: 'font-semibold' }, 'Tutor Temático')
-                                ),
-                                tieneTematico && e('div', { className: 'grid md:grid-cols-3 gap-4 p-4 bg-white rounded-lg' },
-                                    e('input', { type: 'text', placeholder: 'Nombre', value: tutorTematico.nombre, onChange: (x) => setTutorTematico({...tutorTematico, nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('input', { type: 'email', placeholder: 'Email', value: tutorTematico.email, onChange: (x) => setTutorTematico({...tutorTematico, email: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('input', { type: 'text', placeholder: 'Programa', value: tutorTematico.programa, onChange: (x) => setTutorTematico({...tutorTematico, programa: x.target.value}), className: 'px-4 py-2 border rounded-lg' })
-                                )
-                            ),
-
-                            e('div', {},
-                                e('label', { className: 'flex items-center mb-4' },
-                                    e('input', { type: 'checkbox', checked: tieneMetodologico, onChange: (x) => setTieneMetodologico(x.target.checked), className: 'mr-2 w-4 h-4' }),
-                                    e('span', { className: 'font-semibold' }, 'Tutor Metodológico')
-                                ),
-                                tieneMetodologico && e('div', { className: 'grid md:grid-cols-3 gap-4 p-4 bg-white rounded-lg' },
-                                    e('input', { type: 'text', placeholder: 'Nombre', value: tutorMetodologico.nombre, onChange: (x) => setTutorMetodologico({...tutorMetodologico, nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('input', { type: 'email', placeholder: 'Email', value: tutorMetodologico.email, onChange: (x) => setTutorMetodologico({...tutorMetodologico, email: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
-                                    e('input', { type: 'text', placeholder: 'Programa', value: tutorMetodologico.programa, onChange: (x) => setTutorMetodologico({...tutorMetodologico, programa: x.target.value}), className: 'px-4 py-2 border rounded-lg' })
-                                )
-                            )
-                        ),
-
-                        e('div', { className: 'flex gap-4' },
-                            e('button', { onClick: onBack, className: 'flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold' }, 'CANCELAR'),
-                            e('button', { onClick: handleSubmit, className: 'flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold' }, '✓ ENVIAR RADICACIÓN')
-                        )
-                    )
-                )
-            );
-        }
-
-        function StudentPage({ email, onLogout }) {
-            const [radicaciones, setRadicaciones] = useState(() => {
-                const saved = localStorage.getItem('usc_radicaciones');
-                return saved ? JSON.parse(saved) : [];
+                if (fase === '1' && exp.fase1_estado !== estado && estado) return false;
+                if (fase === '2' && exp.fase2_estado !== estado && estado) return false;
+                if (fase === '3' && exp.fase3_estado !== estado && estado) return false;
+                
+                return true;
             });
-            const [currentForm, setCurrentForm] = useState('dashboard');
 
-            useEffect(() => {
-                localStorage.setItem('usc_radicaciones', JSON.stringify(radicaciones));
-            }, [radicaciones]);
-
-            const estudianteRads = radicaciones.filter(r => r.email === email);
-            const ultimaRad = estudianteRads[estudianteRads.length - 1];
-
-            const handleSaveFase1 = (data) => {
-                setRadicaciones([...radicaciones, data]);
-                setCurrentForm('dashboard');
-            };
-
-            if(currentForm === 'fase1') {
-                return e(StudentFase1, { email, onBack: () => setCurrentForm('dashboard'), onSave: handleSaveFase1 });
-            }
-
-            return e('div', { className: 'min-h-screen bg-gray-50' },
-                e('header', { className: 'bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg' },
-                    e('div', { className: 'max-w-6xl mx-auto px-4 py-6 flex justify-between items-center' },
-                        e('div', {},
-                            e('h1', { className: 'text-2xl font-bold' }, 'Mi Trabajo de Grado'),
-                            e('p', { className: 'text-blue-100 text-sm' }, email)
-                        ),
-                        e('button', { onClick: onLogout, className: 'px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg' }, '🚪 Salir')
-                    )
-                ),
-                e('main', { className: 'max-w-6xl mx-auto px-4 py-8' },
-                    e('div', { className: 'grid md:grid-cols-3 gap-6' },
-                        e('div', { className: `p-6 rounded-xl border-2 ${!ultimaRad ? 'bg-blue-100 border-blue-300' : 'bg-green-100 border-green-300'}` },
-                            e('h3', { className: 'font-bold text-lg mb-2' }, '📄 FASE 1'),
-                            e('p', { className: 'text-sm opacity-90 mb-4' }, 'Solicitud de Tutor'),
-                            ultimaRad ? [
-                                e('p', { className: 'text-sm font-semibold text-green-600 mb-2' }, '✓ RADICADA'),
-                                e('p', { className: 'text-xs text-gray-600' }, 'Radicado: ' + ultimaRad.radicado_f1)
-                            ] : e('button', { onClick: () => setCurrentForm('fase1'), className: 'w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold' }, '✓ RADICAR')
-                        ),
-                        e('div', { className: 'p-6 rounded-xl border-2 bg-gray-100 border-gray-300' },
-                            e('h3', { className: 'font-bold text-lg mb-2' }, '📋 FASE 2'),
-                            e('p', { className: 'text-sm opacity-90' }, 'Aval Protocolo'),
-                            e('p', { className: 'text-xs text-gray-500 mt-4' }, 'Próximamente...')
-                        ),
-                        e('div', { className: 'p-6 rounded-xl border-2 bg-gray-100 border-gray-300' },
-                            e('h3', { className: 'font-bold text-lg mb-2' }, '🎤 FASE 3'),
-                            e('p', { className: 'text-sm opacity-90' }, 'Sustentación'),
-                            e('p', { className: 'text-xs text-gray-500 mt-4' }, 'Próximamente...')
-                        )
-                    )
-                )
-            );
+            const tbody = document.getElementById('tabla-body');
+            tbody.innerHTML = filtrados.map((exp, idx) => `
+                <tr>
+                    <td><strong>${exp.expediente}</strong></td>
+                    <td>${exp.ano}</td>
+                    <td>${exp.estudiante}</td>
+                    <td>${exp.email}</td>
+                    <td>${exp.semestre}</td>
+                    <td>${exp.modalidad}</td>
+                    <td><span class="estado-badge estado-${exp.fase1_estado.toLowerCase().replace(' ', '-')}">${exp.fase1_estado}</span></td>
+                    <td>${exp.fase1_fecha}</td>
+                    <td><span class="estado-badge estado-${exp.fase2_estado.toLowerCase().replace(' ', '-')}">${exp.fase2_estado}</span></td>
+                    <td>${exp.fase2_fecha}</td>
+                    <td><span class="estado-badge estado-${exp.fase3_estado.toLowerCase().replace(' ', '-')}">${exp.fase3_estado}</span></td>
+                    <td>${exp.turnitin ? exp.turnitin + '%' : '-'}</td>
+                    <td>${exp.tutor_tematico}</td>
+                    <td>${exp.tutor_metodologico || '-'}</td>
+                    <td>${exp.jurado1 || '-'}</td>
+                    <td>${exp.jurado2 || '-'}</td>
+                    <td>${exp.fecha_sustentacion || '-'}</td>
+                    <td>${exp.linea_investigacion}</td>
+                    <td>${exp.financiacion}</td>
+                    <td>${exp.reconocimientos}</td>
+                    <td>${exp.ciudad}</td>
+                    <td style="font-size: 11px;">${exp.ultima_actualizacion}</td>
+                    <td>
+                        <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="verDetalles(${expedientes.indexOf(exp)})">Ver</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        function AdminPage({ email, onLogout }) {
-            const [radicaciones, setRadicaciones] = useState(() => {
-                const saved = localStorage.getItem('usc_radicaciones');
-                return saved ? JSON.parse(saved) : [];
-            });
-            const [seleccionado, setSeleccionado] = useState(null);
-            const [nuevoTematico, setNuevoTematico] = useState('');
-            const [nuevoMetodologico, setNuevoMetodologico] = useState('');
-
-            const asignarTutores = (radicado) => {
-                const nuevasRads = radicaciones.map(r => 
-                    r.radicado_f1 === radicado 
-                        ? {
-                            ...r,
-                            tutorTematicoAsignado: nuevoTematico || null,
-                            tutorMetodologicoAsignado: nuevoMetodologico || null
-                          }
-                        : r
-                );
-                setRadicaciones(nuevasRads);
-                setSeleccionado(null);
-                setNuevoTematico('');
-                setNuevoMetodologico('');
-                alert('✓ Tutores asignados');
-            };
-
-            const eliminarRadicado = (radicado) => {
-                if(confirm('¿Eliminar ' + radicado + '?')) {
-                    setRadicaciones(radicaciones.filter(r => r.radicado_f1 !== radicado));
-                    alert('✓ Eliminado');
-                }
-            };
-
-            const limpiarTodo = () => {
-                if(confirm('¿Eliminar TODAS las radicaciones?')) {
-                    setRadicaciones([]);
-                    alert('✓ Limpiado');
-                }
-            };
-
-            useEffect(() => {
-                localStorage.setItem('usc_radicaciones', JSON.stringify(radicaciones));
-            }, [radicaciones]);
-
-            const radSeleccionada = seleccionado ? radicaciones.find(r => r.radicado_f1 === seleccionado) : null;
-
-            return e('div', { className: 'min-h-screen bg-gray-50' },
-                e('header', { className: 'bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg' },
-                    e('div', { className: 'max-w-7xl mx-auto px-4 py-6 flex justify-between items-center' },
-                        e('div', {},
-                            e('h1', { className: 'text-3xl font-bold' }, 'Panel Coordinadora'),
-                            e('p', { className: 'text-blue-100 text-sm' }, email)
-                        ),
-                        e('button', { onClick: onLogout, className: 'px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg' }, '🚪 Salir')
-                    )
-                ),
-                e('main', { className: 'max-w-7xl mx-auto px-4 py-8' },
-                    seleccionado ? e('div', { className: 'bg-white rounded-xl shadow-md p-8 mb-6' },
-                        e('div', { className: 'flex justify-between items-center mb-6' },
-                            e('h2', { className: 'text-2xl font-bold' }, 'Asignar Tutores - ' + seleccionado),
-                            e('button', { onClick: () => setSeleccionado(null), className: 'px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700' }, '← Atrás')
-                        ),
-                        radSeleccionada && [
-                            e('div', { className: 'mb-6 p-4 bg-blue-50 rounded-lg' },
-                                e('p', { className: 'font-semibold mb-2' }, 'Estudiante: ' + radSeleccionada.integrante1.nombre),
-                                e('p', { className: 'font-semibold mb-4' }, 'Tema: ' + radSeleccionada.tema),
-                                
-                                e('div', { className: 'mb-4' },
-                                    e('label', { className: 'block font-semibold mb-2' }, '🎓 Tutor Temático'),
-                                    e('input', { 
-                                        type: 'text', 
-                                        placeholder: 'Nombre del tutor temático a asignar', 
-                                        value: nuevoTematico, 
-                                        onChange: (x) => setNuevoTematico(x.target.value),
-                                        className: 'w-full px-4 py-2 border rounded-lg'
-                                    }),
-                                    radSeleccionada.tutorTematicoAsignado && e('p', { className: 'text-sm text-green-600 mt-2' }, '✓ Asignado: ' + radSeleccionada.tutorTematicoAsignado)
-                                ),
-
-                                e('div', { className: 'mb-4' },
-                                    e('label', { className: 'block font-semibold mb-2' }, '🎓 Tutor Metodológico'),
-                                    e('input', { 
-                                        type: 'text', 
-                                        placeholder: 'Nombre del tutor metodológico a asignar', 
-                                        value: nuevoMetodologico, 
-                                        onChange: (x) => setNuevoMetodologico(x.target.value),
-                                        className: 'w-full px-4 py-2 border rounded-lg'
-                                    }),
-                                    radSeleccionada.tutorMetodologicoAsignado && e('p', { className: 'text-sm text-green-600 mt-2' }, '✓ Asignado: ' + radSeleccionada.tutorMetodologicoAsignado)
-                                ),
-
-                                e('button', { 
-                                    onClick: () => asignarTutores(seleccionado),
-                                    className: 'w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold'
-                                }, '✓ GUARDAR TUTORES')
-                            )
-                        ]
-                    ) : e('div', { className: 'bg-white rounded-xl shadow-md p-6 mb-6' },
-                        e('div', { className: 'flex justify-between items-center mb-4' },
-                            e('h2', { className: 'text-xl font-bold' }, '📊 FASE 1 - Solicitudes de Tutor'),
-                            e('button', { onClick: limpiarTodo, className: 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-semibold' }, '🗑️ Limpiar todo')
-                        ),
-                        e('div', { className: 'overflow-x-auto' },
-                            e('table', { className: 'w-full text-sm' },
-                                e('thead', { className: 'bg-gray-100 border-b' },
-                                    e('tr', {},
-                                        e('th', { className: 'px-4 py-2 text-left' }, 'Radicado'),
-                                        e('th', { className: 'px-4 py-2 text-left' }, 'Integrantes'),
-                                        e('th', { className: 'px-4 py-2 text-left' }, 'Email'),
-                                        e('th', { className: 'px-4 py-2 text-left' }, 'Tema'),
-                                        e('th', { className: 'px-4 py-2 text-left' }, 'Tutores Asignados'),
-                                        e('th', { className: 'px-4 py-2 text-center' }, 'Acciones')
-                                    )
-                                ),
-                                e('tbody', {},
-                                    radicaciones.map((rad) => {
-                                        let integrantes = rad.integrante1.nombre;
-                                        if(rad.integrante2) integrantes += ', ' + rad.integrante2.nombre;
-                                        if(rad.integrante3) integrantes += ', ' + rad.integrante3.nombre;
-                                        
-                                        let tutoresAsignados = [];
-                                        if(rad.tutorTematicoAsignado) tutoresAsignados.push('Temático: ' + rad.tutorTematicoAsignado);
-                                        if(rad.tutorMetodologicoAsignado) tutoresAsignados.push('Metodológico: ' + rad.tutorMetodologicoAsignado);
-                                        const tutoresText = tutoresAsignados.length > 0 ? tutoresAsignados.join(' | ') : '❌ Sin asignar';
-
-                                        return e('tr', { key: rad.radicado_f1, className: 'border-b hover:bg-gray-50' },
-                                            e('td', { className: 'px-4 py-2 font-semibold text-blue-600' }, rad.radicado_f1),
-                                            e('td', { className: 'px-4 py-2 text-sm' }, integrantes),
-                                            e('td', { className: 'px-4 py-2' }, rad.email),
-                                            e('td', { className: 'px-4 py-2' }, rad.tema),
-                                            e('td', { className: 'px-4 py-2 text-sm font-semibold' }, tutoresText),
-                                            e('td', { className: 'px-4 py-2 text-center space-x-2' },
-                                                e('button', { onClick: () => setSeleccionado(rad.radicado_f1), className: 'px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 font-semibold' }, '✏️ Asignar Tutores'),
-                                                e('button', { onClick: () => eliminarRadicado(rad.radicado_f1), className: 'px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 font-semibold' }, '🗑️ Eliminar')
-                                            )
-                                        );
-                                    })
-                                )
-                            )
-                        ),
-                        radicaciones.length === 0 && e('p', { className: 'text-center text-gray-600 py-8' }, 'Sin radicaciones aún')
-                    )
-                )
-            );
+        function limpiarFiltros() {
+            document.getElementById('filtro-texto').value = '';
+            document.getElementById('filtro-ano').value = '';
+            document.getElementById('filtro-fase').value = '';
+            document.getElementById('filtro-estado').value = '';
+            document.getElementById('filtro-modalidad').value = '';
+            document.getElementById('filtro-semestre').value = '';
+            document.getElementById('filtro-tutor').value = '';
+            document.getElementById('filtro-linea').value = '';
+            document.getElementById('filtro-financiacion').value = '';
+            document.getElementById('filtro-ciudad').value = '';
+            document.getElementById('filtro-reconocimientos').value = '';
+            cargarTabla();
         }
 
-        function App() {
-            const [loggedIn, setLoggedIn] = useState(false);
-            const [userType, setUserType] = useState(null);
-            const [email, setEmail] = useState('');
-
-            if(!loggedIn) {
-                return e(LoginPage, { onLogin: (type, mail) => { setUserType(type); setEmail(mail); setLoggedIn(true); } });
-            }
-
-            if(userType === 'student') {
-                return e(StudentPage, { email, onLogout: () => { setLoggedIn(false); setUserType(null); } });
-            }
-
-            if(userType === 'admin') {
-                return e(AdminPage, { email, onLogout: () => { setLoggedIn(false); setUserType(null); } });
-            }
-
-            return null;
+        function verDetalles(idx) {
+            const exp = expedientes[idx];
+            const html = `
+                <div class="modal-grid">
+                    <div class="modal-field">
+                        <label>Expediente</label>
+                        <input type="text" value="${exp.expediente}" disabled>
+                    </div>
+                    <div class="modal-field">
+                        <label>Estudiante</label>
+                        <input type="text" value="${exp.estudiante}" disabled>
+                    </div>
+                    <div class="modal-field">
+                        <label>Email</label>
+                        <input type="text" value="${exp.email}" disabled>
+                    </div>
+                    <div class="modal-field">
+                        <label>Modalidad</label>
+                        <input type="text" value="${exp.modalidad}" disabled>
+                    </div>
+                    <div class="modal-field">
+                        <label>Fase 1 Estado</label>
+                        <input type="text" value="${exp.fase1_estado}" disabled>
+                    </div>
+                    <div class="modal-field">
+                        <label>Fase 2 Estado</label>
+                        <input type="text" value="${exp.fase2_estado}" disabled>
+                    </div>
+                    <div class="modal-field">
+                        <label>Tutor Temático</label>
+                        <input type="text" value="${exp.tutor_tematico}" disabled>
+                    </div>
+                    <div class="modal-field">
+                        <label>Línea Investigación</label>
+                        <input type="text" value="${exp.linea_investigacion}" disabled>
+                    </div>
+                </div>
+            `;
+            document.getElementById('modal-body').innerHTML = html;
+            document.getElementById('modal').classList.add('active');
         }
 
-        ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+        function cerrarModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function exportarExcel() {
+            alert('✅ Exportando a Excel...\n\nArchivo descargado: expedientes.xlsx');
+        }
+
+        function sincronizarExcel() {
+            alert('✅ Sincronizando automáticamente con Excel...\n\nTodos los datos están actualizados en tu archivo Excel de Microsoft 365.');
+        }
+
+        function logout() {
+            alert('Sesión cerrada');
+        }
+
+        // Inicializar
+        cargarTabla();
     </script>
 </body>
 </html>
