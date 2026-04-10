@@ -72,26 +72,36 @@
         }
 
         function StudentFase1({ email, onBack, onSave }) {
-            const [nombre, setNombre] = useState('');
-            const [cedula, setCedula] = useState('');
-            const [telefono, setTelefono] = useState('');
-            const [semestre, setSemestre] = useState('');
+            const [integrante1, setIntegrante1] = useState({ nombre: '', cedula: '', telefono: '', semestre: '' });
+            const [integrante2, setIntegrante2] = useState(null);
+            const [integrante3, setIntegrante3] = useState(null);
             const [tema, setTema] = useState('');
+            const [tiene2, setTiene2] = useState(false);
+            const [tiene3, setTiene3] = useState(false);
 
             const handleSubmit = () => {
-                if(!nombre || !semestre || !tema) {
-                    alert('Completa: nombre, semestre y tema');
+                if(!integrante1.nombre || !integrante1.semestre || !tema) {
+                    alert('Completa: nombre, semestre y tema del integrante 1');
                     return;
                 }
+                if(tiene2 && (!integrante2.nombre || !integrante2.semestre)) {
+                    alert('Completa datos del integrante 2');
+                    return;
+                }
+                if(tiene3 && (!integrante3.nombre || !integrante3.semestre)) {
+                    alert('Completa datos del integrante 3');
+                    return;
+                }
+
                 const radicado = generarRadicado('F1');
                 onSave({
                     radicado_f1: radicado,
-                    nombre,
-                    cedula,
-                    telefono,
-                    semestre,
+                    integrante1: { ...integrante1, email_inst: email },
+                    integrante2: tiene2 ? integrante2 : null,
+                    integrante3: tiene3 ? integrante3 : null,
                     tema,
-                    email
+                    email,
+                    fecha: new Date().toLocaleDateString()
                 });
                 alert('✅ Radicación exitosa!\n\nRadicado: ' + radicado);
             };
@@ -105,24 +115,70 @@
                 ),
                 e('main', { className: 'max-w-4xl mx-auto px-4 py-8' },
                     e('div', { className: 'bg-white rounded-xl shadow-md p-8' },
-                        e('h2', { className: 'text-2xl font-bold mb-6' }, 'Información del Integrante'),
+                        e('h2', { className: 'text-2xl font-bold mb-6' }, 'Información de Integrantes (máx 3)'),
+
+                        // INTEGRANTE 1
                         e('div', { className: 'mb-6 p-6 bg-blue-50 rounded-lg border border-blue-200' },
-                            e('h3', { className: 'text-lg font-bold mb-4' }, '👤 INTEGRANTE 1 *'),
+                            e('h3', { className: 'text-lg font-bold mb-4' }, '👤 INTEGRANTE 1 (Quién radica) *'),
                             e('div', { className: 'grid md:grid-cols-2 gap-4' },
-                                e('input', { type: 'text', placeholder: 'Nombre completo', value: nombre, onChange: (x) => setNombre(x.target.value), className: 'px-4 py-2 border rounded-lg' }),
-                                e('input', { type: 'text', placeholder: 'Cédula', value: cedula, onChange: (x) => setCedula(x.target.value), className: 'px-4 py-2 border rounded-lg' }),
-                                e('input', { type: 'email', value: email, disabled: true, className: 'px-4 py-2 border rounded-lg bg-gray-100' }),
-                                e('input', { type: 'tel', placeholder: 'Teléfono', value: telefono, onChange: (x) => setTelefono(x.target.value), className: 'px-4 py-2 border rounded-lg' }),
-                                e('select', { value: semestre, onChange: (x) => setSemestre(x.target.value), className: 'px-4 py-2 border rounded-lg' },
+                                e('input', { type: 'text', placeholder: 'Nombre completo', value: integrante1.nombre, onChange: (x) => setIntegrante1({...integrante1, nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                e('input', { type: 'text', placeholder: 'Cédula', value: integrante1.cedula, onChange: (x) => setIntegrante1({...integrante1, cedula: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                e('input', { type: 'email', value: email, disabled: true, className: 'px-4 py-2 border rounded-lg bg-gray-100 col-span-2' }),
+                                e('input', { type: 'tel', placeholder: 'Teléfono', value: integrante1.telefono, onChange: (x) => setIntegrante1({...integrante1, telefono: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                e('select', { value: integrante1.semestre, onChange: (x) => setIntegrante1({...integrante1, semestre: x.target.value}), className: 'px-4 py-2 border rounded-lg' },
                                     e('option', { value: '' }, 'Selecciona semestre'),
                                     [7,8,9,10,11,12].map(s => e('option', { key: s, value: s }, `Semestre ${s}`))
                                 )
                             )
                         ),
+
+                        // INTEGRANTE 2
+                        e('div', { className: 'mb-6' },
+                            e('label', { className: 'flex items-center mb-4' },
+                                e('input', { type: 'checkbox', checked: tiene2, onChange: (x) => setTiene2(x.target.checked), className: 'mr-2 w-4 h-4' }),
+                                e('span', { className: 'font-semibold' }, '¿Agregar integrante 2?')
+                            ),
+                            tiene2 && e('div', { className: 'p-6 bg-purple-50 rounded-lg border border-purple-200' },
+                                e('h3', { className: 'text-lg font-bold mb-4' }, '👥 INTEGRANTE 2'),
+                                e('div', { className: 'grid md:grid-cols-2 gap-4' },
+                                    e('input', { type: 'text', placeholder: 'Nombre completo', value: integrante2?.nombre || '', onChange: (x) => setIntegrante2({...(integrante2||{}), nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('input', { type: 'text', placeholder: 'Cédula', value: integrante2?.cedula || '', onChange: (x) => setIntegrante2({...(integrante2||{}), cedula: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('input', { type: 'tel', placeholder: 'Teléfono', value: integrante2?.telefono || '', onChange: (x) => setIntegrante2({...(integrante2||{}), telefono: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('select', { value: integrante2?.semestre || '', onChange: (x) => setIntegrante2({...(integrante2||{}), semestre: x.target.value}), className: 'px-4 py-2 border rounded-lg' },
+                                        e('option', { value: '' }, 'Selecciona semestre'),
+                                        [7,8,9,10,11,12].map(s => e('option', { key: s, value: s }, `Semestre ${s}`))
+                                    )
+                                )
+                            )
+                        ),
+
+                        // INTEGRANTE 3
+                        e('div', { className: 'mb-6' },
+                            e('label', { className: 'flex items-center mb-4' },
+                                e('input', { type: 'checkbox', checked: tiene3, onChange: (x) => setTiene3(x.target.checked), disabled: !tiene2, className: 'mr-2 w-4 h-4' }),
+                                e('span', { className: `font-semibold ${!tiene2 ? 'text-gray-400' : ''}` }, '¿Agregar integrante 3?')
+                            ),
+                            tiene3 && e('div', { className: 'p-6 bg-green-50 rounded-lg border border-green-200' },
+                                e('h3', { className: 'text-lg font-bold mb-4' }, '👨‍👩‍👧 INTEGRANTE 3'),
+                                e('div', { className: 'grid md:grid-cols-2 gap-4' },
+                                    e('input', { type: 'text', placeholder: 'Nombre completo', value: integrante3?.nombre || '', onChange: (x) => setIntegrante3({...(integrante3||{}), nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('input', { type: 'text', placeholder: 'Cédula', value: integrante3?.cedula || '', onChange: (x) => setIntegrante3({...(integrante3||{}), cedula: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('input', { type: 'tel', placeholder: 'Teléfono', value: integrante3?.telefono || '', onChange: (x) => setIntegrante3({...(integrante3||{}), telefono: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('select', { value: integrante3?.semestre || '', onChange: (x) => setIntegrante3({...(integrante3||{}), semestre: x.target.value}), className: 'px-4 py-2 border rounded-lg' },
+                                        e('option', { value: '' }, 'Selecciona semestre'),
+                                        [7,8,9,10,11,12].map(s => e('option', { key: s, value: s }, `Semestre ${s}`))
+                                    )
+                                )
+                            )
+                        ),
+
+                        // TEMA
                         e('div', { className: 'mb-6 p-6 bg-indigo-50 rounded-lg border border-indigo-200' },
                             e('h3', { className: 'text-lg font-bold mb-4' }, '📚 TEMA DEL TRABAJO *'),
                             e('input', { type: 'text', placeholder: 'Describe tu tema', value: tema, onChange: (x) => setTema(x.target.value), className: 'w-full px-4 py-2 border rounded-lg' })
                         ),
+
+                        // BOTONES
                         e('div', { className: 'flex gap-4' },
                             e('button', { onClick: onBack, className: 'flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold' }, 'CANCELAR'),
                             e('button', { onClick: handleSubmit, className: 'flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold' }, '✓ ENVIAR RADICACIÓN')
@@ -171,7 +227,7 @@
                             e('h3', { className: 'font-bold text-lg mb-2' }, '📄 FASE 1'),
                             e('p', { className: 'text-sm opacity-90 mb-4' }, 'Solicitud de Tutor'),
                             ultimaRad ? [
-                                e('p', { className: 'text-sm font-semibold text-green-600 mb-2' }, '✓ RADIÇADA'),
+                                e('p', { className: 'text-sm font-semibold text-green-600 mb-2' }, '✓ RADICADA'),
                                 e('p', { className: 'text-xs text-gray-600' }, 'Radicado: ' + ultimaRad.radicado_f1)
                             ] : e('button', { onClick: () => setCurrentForm('fase1'), className: 'w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 font-semibold' }, '✓ RADICAR')
                         ),
@@ -196,6 +252,24 @@
                 return saved ? JSON.parse(saved) : [];
             });
 
+            const eliminarRadicado = (radicado) => {
+                if(confirm('¿Eliminar ' + radicado + '?')) {
+                    setRadicaciones(radicaciones.filter(r => r.radicado_f1 !== radicado));
+                    alert('✓ Eliminado');
+                }
+            };
+
+            const limpiarTodo = () => {
+                if(confirm('¿Eliminar TODAS las radicaciones? (Esta acción no se puede deshacer)')) {
+                    setRadicaciones([]);
+                    alert('✓ Limpiado');
+                }
+            };
+
+            useEffect(() => {
+                localStorage.setItem('usc_radicaciones', JSON.stringify(radicaciones));
+            }, [radicaciones]);
+
             return e('div', { className: 'min-h-screen bg-gray-50' },
                 e('header', { className: 'bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg' },
                     e('div', { className: 'max-w-7xl mx-auto px-4 py-6 flex justify-between items-center' },
@@ -207,33 +281,38 @@
                     )
                 ),
                 e('main', { className: 'max-w-7xl mx-auto px-4 py-8' },
-                    e('div', { className: 'bg-white rounded-xl shadow-md p-6' },
-                        e('h2', { className: 'text-xl font-bold mb-4' }, '📊 FASE 1 - Solicitudes de Tutor'),
+                    e('div', { className: 'bg-white rounded-xl shadow-md p-6 mb-6' },
+                        e('div', { className: 'flex justify-between items-center mb-4' },
+                            e('h2', { className: 'text-xl font-bold' }, '📊 FASE 1 - Solicitudes de Tutor'),
+                            e('button', { onClick: limpiarTodo, className: 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-semibold' }, '🗑️ Limpiar todo')
+                        ),
                         e('div', { className: 'overflow-x-auto' },
                             e('table', { className: 'w-full text-sm' },
                                 e('thead', { className: 'bg-gray-100 border-b' },
                                     e('tr', {},
                                         e('th', { className: 'px-4 py-2 text-left' }, 'Radicado'),
-                                        e('th', { className: 'px-4 py-2 text-left' }, 'Estudiante'),
+                                        e('th', { className: 'px-4 py-2 text-left' }, 'Integrantes'),
                                         e('th', { className: 'px-4 py-2 text-left' }, 'Email'),
                                         e('th', { className: 'px-4 py-2 text-left' }, 'Tema'),
-                                        e('th', { className: 'px-4 py-2 text-left' }, 'Semestre'),
-                                        e('th', { className: 'px-4 py-2 text-center' }, 'Acción')
+                                        e('th', { className: 'px-4 py-2 text-center' }, 'Acciones')
                                     )
                                 ),
                                 e('tbody', {},
-                                    radicaciones.map((rad) =>
-                                        e('tr', { key: rad.radicado_f1, className: 'border-b hover:bg-gray-50' },
+                                    radicaciones.map((rad) => {
+                                        let integrantes = rad.integrante1.nombre;
+                                        if(rad.integrante2) integrantes += ', ' + rad.integrante2.nombre;
+                                        if(rad.integrante3) integrantes += ', ' + rad.integrante3.nombre;
+                                        return e('tr', { key: rad.radicado_f1, className: 'border-b hover:bg-gray-50' },
                                             e('td', { className: 'px-4 py-2 font-semibold text-blue-600' }, rad.radicado_f1),
-                                            e('td', { className: 'px-4 py-2' }, rad.nombre),
+                                            e('td', { className: 'px-4 py-2 text-sm' }, integrantes),
                                             e('td', { className: 'px-4 py-2' }, rad.email),
                                             e('td', { className: 'px-4 py-2' }, rad.tema),
-                                            e('td', { className: 'px-4 py-2' }, rad.semestre),
-                                            e('td', { className: 'px-4 py-2 text-center' },
-                                                e('button', { className: 'px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 font-semibold' }, '✓ Aprobar')
+                                            e('td', { className: 'px-4 py-2 text-center space-x-2' },
+                                                e('button', { className: 'px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 font-semibold' }, '✓ Aprobar'),
+                                                e('button', { onClick: () => eliminarRadicado(rad.radicado_f1), className: 'px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 font-semibold' }, '🗑️ Eliminar')
                                             )
-                                        )
-                                    )
+                                        );
+                                    })
                                 )
                             )
                         ),
