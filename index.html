@@ -30,6 +30,16 @@
         
         .header-right { display: flex; gap: 20px; align-items: center; }
         
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .user-email { opacity: 0.9; }
+        .user-rol { font-weight: 600; }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -242,210 +252,426 @@
             align-items: center;
             gap: 6px;
         }
+
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #003d82 0%, #0052a3 100%);
+        }
+        
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #003d82 0%, #0052a3 100%);
+            border-radius: 10px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            color: #003d82;
+            margin-bottom: 10px;
+        }
+        
+        .login-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-button {
+            width: 100%;
+            background: #003d82;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .form-button:hover {
+            background: #002449;
+        }
+        
+        .info-box {
+            background: #f0f7ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 15px;
+            font-size: 12px;
+            color: #0c447c;
+            margin-top: 15px;
+        }
+        
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .step {
+            flex: 1;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .step.active {
+            color: #003d82;
+            font-weight: 600;
+        }
+        
+        .code-input-group {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .code-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #003d82;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="header-left">
-                <h1>📊 Sistema de Radicación TG - USC Medicina</h1>
-                <p>Panel de Control de Expedientes</p>
+    <div id="login-view" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-logo">USC</div>
+                <h1 class="login-title">Radicación TG</h1>
+                <p class="login-subtitle">Sistema 2026</p>
             </div>
-            <div class="header-right">
-                <div class="sync-badge">
-                    ✓ Sincronizado
+
+            <!-- PASO 1: INGRESO EMAIL -->
+            <div id="paso1-email">
+                <div class="step-indicator">
+                    <div class="step active">1️⃣ Email</div>
+                    <div class="step">2️⃣ Código</div>
                 </div>
-                <button class="btn btn-secondary" onclick="logout()">🚪 Salir</button>
+
+                <div class="form-group">
+                    <label class="form-label">Email Institucional o Personal</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="ejemplo@usc.edu.co" autofocus>
+                </div>
+
+                <button class="form-button" onclick="enviarCodigo()">
+                    📧 Enviar código a mi email
+                </button>
+
+                <div class="info-box">
+                    <div class="info-box-title">🔐 Proceso seguro:</div>
+                    <p>1. Ingresa tu email</p>
+                    <p>2. Recibirás un código de 6 dígitos</p>
+                    <p>3. Ingresa el código para acceder</p>
+                </div>
+            </div>
+
+            <!-- PASO 2: INGRESO CÓDIGO -->
+            <div id="paso2-codigo" style="display: none;">
+                <div class="step-indicator">
+                    <div class="step">1️⃣ Email</div>
+                    <div class="step active">2️⃣ Código</div>
+                </div>
+
+                <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 12px;">
+                    Hemos enviado un código a:<br>
+                    <strong id="email-enviado">usuario@usc.edu.co</strong>
+                </p>
+
+                <label class="form-label">Ingresa el código de 6 dígitos</label>
+                <div class="code-input-group" id="codigo-inputs">
+                    <input type="text" class="code-input" maxlength="1" onkeyup="moverAlSiguiente(this, 0)">
+                    <input type="text" class="code-input" maxlength="1" onkeyup="moverAlSiguiente(this, 1)">
+                    <input type="text" class="code-input" maxlength="1" onkeyup="moverAlSiguiente(this, 2)">
+                    <input type="text" class="code-input" maxlength="1" onkeyup="moverAlSiguiente(this, 3)">
+                    <input type="text" class="code-input" maxlength="1" onkeyup="moverAlSiguiente(this, 4)">
+                    <input type="text" class="code-input" maxlength="1" onkeyup="verificarCodigo(this, 5)">
+                </div>
+
+                <button class="form-button" onclick="verificarCodigo()">
+                    ✓ Verificar código
+                </button>
+
+                <p style="text-align: center; margin-top: 15px; font-size: 12px; color: #999;">
+                    ¿No recibiste el código? 
+                    <a href="#" onclick="enviarCodigo(); return false;" style="color: #003d82; text-decoration: none; font-weight: 600;">Enviar de nuevo</a>
+                </p>
+
+                <button style="width: 100%; background: #e5e7eb; color: #666; padding: 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; margin-top: 10px;" onclick="volverAlPaso1()">
+                    ← Volver atrás
+                </button>
             </div>
         </div>
+    </div>
 
-        <!-- ESTADÍSTICAS -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Expedientes</div>
-                <div class="stat-value" id="stat-total">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Fase 1 Completadas</div>
-                <div class="stat-value" id="stat-fase1">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Fase 2 Completadas</div>
-                <div class="stat-value" id="stat-fase2">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Fase 3 Programadas</div>
-                <div class="stat-value" id="stat-fase3">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">% Cumplimiento</div>
-                <div class="stat-value" id="stat-porcentaje">0%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Actualizado</div>
-                <div class="stat-value" style="font-size: 14px;" id="stat-fecha">Ahora</div>
-            </div>
-        </div>
-
-        <!-- FILTROS -->
-        <div class="filters-section">
-            <div class="filters-title">🔍 Filtros Avanzados</div>
-            
-            <div class="filters-grid">
-                <div class="filter-group">
-                    <label class="filter-label">Buscar Expediente o Estudiante</label>
-                    <input type="text" id="filtro-texto" class="filter-input" placeholder="Busca aquí..." onkeyup="aplicarFiltros()">
+    <!-- APP PRINCIPAL (Oculta hasta login) -->
+    <div id="app-view" style="display: none;">
+        <div class="container">
+            <!-- HEADER -->
+            <div class="header">
+                <div class="header-left">
+                    <h1 id="header-titulo">📊 Sistema de Radicación TG - USC Medicina</h1>
+                    <p id="header-subtitulo">Panel de Control de Expedientes</p>
                 </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="user-email">📧 <span id="user-email">usuario@usc.edu.co</span></div>
+                        <div class="user-rol">👤 <span id="user-rol">ROL</span></div>
+                    </div>
+                    <div class="sync-badge">
+                        ✓ Sincronizado
+                    </div>
+                    <button class="btn btn-secondary" onclick="logout()">🚪 Salir</button>
+                </div>
+            </div>
+
+            <!-- ESTADÍSTICAS -->
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Expedientes</div>
+                    <div class="stat-value" id="stat-total">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Fase 1 Completadas</div>
+                    <div class="stat-value" id="stat-fase1">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Fase 2 Completadas</div>
+                    <div class="stat-value" id="stat-fase2">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Fase 3 Programadas</div>
+                    <div class="stat-value" id="stat-fase3">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">% Cumplimiento</div>
+                    <div class="stat-value" id="stat-porcentaje">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Actualizado</div>
+                    <div class="stat-value" style="font-size: 14px;" id="stat-fecha">Ahora</div>
+                </div>
+            </div>
+
+            <!-- FILTROS (Solo Coordinadora) -->
+            <div class="filters-section" id="filtros-section">
+                <div class="filters-title">🔍 Filtros Avanzados</div>
                 
-                <div class="filter-group">
-                    <label class="filter-label">Año</label>
-                    <select class="filter-select" id="filtro-ano" onchange="aplicarFiltros()">
-                        <option value="">Todos</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                    </select>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">Buscar Expediente o Estudiante</label>
+                        <input type="text" id="filtro-texto" class="filter-input" placeholder="Busca aquí..." onkeyup="aplicarFiltros()">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Año</label>
+                        <select class="filter-select" id="filtro-ano" onchange="aplicarFiltros()">
+                            <option value="">Todos</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Fase</label>
+                        <select class="filter-select" id="filtro-fase" onchange="aplicarFiltros()">
+                            <option value="">Todas</option>
+                            <option value="1">Fase 1</option>
+                            <option value="2">Fase 2</option>
+                            <option value="3">Fase 3</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Estado</label>
+                        <select class="filter-select" id="filtro-estado" onchange="aplicarFiltros()">
+                            <option value="">Todos</option>
+                            <option value="Radicada">Radicada</option>
+                            <option value="Aprobada">Aprobada</option>
+                            <option value="Devuelta">Devuelta</option>
+                            <option value="En evaluación">En evaluación</option>
+                            <option value="Bloqueada">Bloqueada</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Modalidad</label>
+                        <select class="filter-select" id="filtro-modalidad" onchange="aplicarFiltros()">
+                            <option value="">Todas</option>
+                            <option value="Investigación">Investigación</option>
+                            <option value="Monografía">Monografía</option>
+                            <option value="Diplomado">Diplomado</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Semestre</label>
+                        <select class="filter-select" id="filtro-semestre" onchange="aplicarFiltros()">
+                            <option value="">Todos</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Tutor Temático</label>
+                        <input type="text" class="filter-input" id="filtro-tutor" placeholder="Nombre del tutor" onkeyup="aplicarFiltros()">
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Línea Investigación</label>
+                        <select class="filter-select" id="filtro-linea" onchange="aplicarFiltros()">
+                            <option value="">Todas</option>
+                            <option value="Medicina Interna">Medicina Interna</option>
+                            <option value="Cirugía">Cirugía</option>
+                            <option value="Pediatría">Pediatría</option>
+                            <option value="Ginecología">Ginecología</option>
+                            <option value="Salud Pública">Salud Pública</option>
+                            <option value="Educación médica">Educación médica</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Financiación</label>
+                        <select class="filter-select" id="filtro-financiacion" onchange="aplicarFiltros()">
+                            <option value="">Todas</option>
+                            <option value="Recursos propios">Recursos propios</option>
+                            <option value="Universidad">Universidad</option>
+                            <option value="COLCIENCIAS">COLCIENCIAS</option>
+                            <option value="Institución externa">Institución externa</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Turnitin %</label>
+                        <select class="filter-select" id="filtro-turnitin" onchange="aplicarFiltros()">
+                            <option value="">Todos</option>
+                            <option value="0-10">0-10%</option>
+                            <option value="10-20">10-20%</option>
+                            <option value="20+">Más de 20%</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Ciudad</label>
+                        <input type="text" class="filter-input" id="filtro-ciudad" placeholder="Ciudad..." onkeyup="aplicarFiltros()">
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Reconocimientos</label>
+                        <input type="text" class="filter-input" id="filtro-reconocimientos" placeholder="Reconocimiento..." onkeyup="aplicarFiltros()">
+                    </div>
                 </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Fase</label>
-                    <select class="filter-select" id="filtro-fase" onchange="aplicarFiltros()">
-                        <option value="">Todas</option>
-                        <option value="1">Fase 1</option>
-                        <option value="2">Fase 2</option>
-                        <option value="3">Fase 3</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Estado</label>
-                    <select class="filter-select" id="filtro-estado" onchange="aplicarFiltros()">
-                        <option value="">Todos</option>
-                        <option value="Radicada">Radicada</option>
-                        <option value="Aprobada">Aprobada</option>
-                        <option value="Devuelta">Devuelta</option>
-                        <option value="En evaluación">En evaluación</option>
-                        <option value="Bloqueada">Bloqueada</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Modalidad</label>
-                    <select class="filter-select" id="filtro-modalidad" onchange="aplicarFiltros()">
-                        <option value="">Todas</option>
-                        <option value="Investigación">Investigación</option>
-                        <option value="Monografía">Monografía</option>
-                        <option value="Diplomado">Diplomado</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Semestre</label>
-                    <select class="filter-select" id="filtro-semestre" onchange="aplicarFiltros()">
-                        <option value="">Todos</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                        <option value="11">11</option>
-                        <option value="12">12</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Tutor Temático</label>
-                    <input type="text" class="filter-input" id="filtro-tutor" placeholder="Nombre del tutor" onkeyup="aplicarFiltros()">
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Línea Investigación</label>
-                    <select class="filter-select" id="filtro-linea" onchange="aplicarFiltros()">
-                        <option value="">Todas</option>
-                        <option value="Medicina Interna">Medicina Interna</option>
-                        <option value="Cirugía">Cirugía</option>
-                        <option value="Pediatría">Pediatría</option>
-                        <option value="Ginecología">Ginecología</option>
-                        <option value="Salud Pública">Salud Pública</option>
-                        <option value="Educación médica">Educación médica</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Financiación</label>
-                    <select class="filter-select" id="filtro-financiacion" onchange="aplicarFiltros()">
-                        <option value="">Todas</option>
-                        <option value="Recursos propios">Recursos propios</option>
-                        <option value="Universidad">Universidad</option>
-                        <option value="COLCIENCIAS">COLCIENCIAS</option>
-                        <option value="Institución externa">Institución externa</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Turnitin %</label>
-                    <select class="filter-select" id="filtro-turnitin" onchange="aplicarFiltros()">
-                        <option value="">Todos</option>
-                        <option value="0-10">0-10%</option>
-                        <option value="10-20">10-20%</option>
-                        <option value="20+">Más de 20%</option>
-                    </select>
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Ciudad</label>
-                    <input type="text" class="filter-input" id="filtro-ciudad" placeholder="Ciudad..." onkeyup="aplicarFiltros()">
-                </div>
-
-                <div class="filter-group">
-                    <label class="filter-label">Reconocimientos</label>
-                    <input type="text" class="filter-input" id="filtro-reconocimientos" placeholder="Reconocimiento..." onkeyup="aplicarFiltros()">
+                <div class="filter-buttons">
+                    <button class="btn btn-primary" onclick="aplicarFiltros()">🔍 Aplicar Filtros</button>
+                    <button class="btn btn-secondary" onclick="limpiarFiltros()">✕ Limpiar</button>
+                    <button class="btn btn-success" onclick="exportarExcel()">📥 Exportar Excel</button>
+                    <button class="btn btn-success" onclick="sincronizarExcel()">🔄 Sincronizar Ahora</button>
                 </div>
             </div>
 
-            <div class="filter-buttons">
-                <button class="btn btn-primary" onclick="aplicarFiltros()">🔍 Aplicar Filtros</button>
-                <button class="btn btn-secondary" onclick="limpiarFiltros()">✕ Limpiar</button>
-                <button class="btn btn-success" onclick="exportarExcel()">📥 Exportar Excel</button>
-                <button class="btn btn-success" onclick="sincronizarExcel()">🔄 Sincronizar Ahora</button>
-            </div>
-        </div>
-
-        <!-- TABLA -->
-        <div class="table-container">
-            <div class="table-wrapper">
-                <table id="tabla-expedientes">
-                    <thead>
-                        <tr>
-                            <th>Expediente</th>
-                            <th>Año</th>
-                            <th>Estudiante</th>
-                            <th>Email</th>
-                            <th>Semestre</th>
-                            <th>Modalidad</th>
-                            <th>Fase 1 Est.</th>
-                            <th>Fase 1 Fecha</th>
-                            <th>Fase 2 Est.</th>
-                            <th>Fase 2 Fecha</th>
-                            <th>Fase 3 Est.</th>
-                            <th>Turnitin %</th>
-                            <th>Tutor Temático</th>
-                            <th>Tutor Metodológico</th>
-                            <th>Jurado 1</th>
-                            <th>Jurado 2</th>
-                            <th>Fecha Sustentación</th>
-                            <th>Línea Invest.</th>
-                            <th>Financiación</th>
-                            <th>Reconocimientos</th>
-                            <th>Ciudad</th>
-                            <th>Última Actualización</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-body">
-                        <!-- Se llena dinámicamente -->
-                    </tbody>
-                </table>
+            <!-- TABLA -->
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table id="tabla-expedientes">
+                        <thead>
+                            <tr>
+                                <th>Expediente</th>
+                                <th>Año</th>
+                                <th>Estudiante</th>
+                                <th>Email</th>
+                                <th>Semestre</th>
+                                <th>Modalidad</th>
+                                <th>Fase 1 Est.</th>
+                                <th>Fase 1 Fecha</th>
+                                <th>Fase 2 Est.</th>
+                                <th>Fase 2 Fecha</th>
+                                <th>Fase 3 Est.</th>
+                                <th>Turnitin %</th>
+                                <th>Tutor Temático</th>
+                                <th>Tutor Metodológico</th>
+                                <th>Jurado 1</th>
+                                <th>Jurado 2</th>
+                                <th>Fecha Sustentación</th>
+                                <th>Línea Invest.</th>
+                                <th>Financiación</th>
+                                <th>Reconocimientos</th>
+                                <th>Ciudad</th>
+                                <th>Última Actualización</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-body">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -462,7 +688,108 @@
     </div>
 
     <script>
-        // BASE DE DATOS SIMULADA
+        let usuarioLogueado = null;
+        let codigoGenerado = null;
+        let emailTemp = null;
+
+        window.onload = function() {
+            const usuarioGuardado = localStorage.getItem('usuarioLogueado');
+            if (usuarioGuardado) {
+                usuarioLogueado = JSON.parse(usuarioGuardado);
+                mostrarApp();
+            }
+        };
+
+        function enviarCodigo() {
+            const email = document.getElementById('loginEmail').value.trim();
+            
+            if (!email) {
+                alert('Por favor ingresa tu email');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                alert('Por favor ingresa un email válido');
+                return;
+            }
+
+            codigoGenerado = Math.floor(100000 + Math.random() * 900000).toString();
+            emailTemp = email;
+
+            console.log(`📧 CÓDIGO ENVIADO A: ${email}`);
+            console.log(`🔐 CÓDIGO: ${codigoGenerado}`);
+            
+            alert(`📧 Código enviado a ${email}\n\n🔐 Para DEMO, tu código es: ${codigoGenerado}`);
+
+            document.getElementById('paso1-email').style.display = 'none';
+            document.getElementById('paso2-codigo').style.display = 'block';
+            document.getElementById('email-enviado').textContent = email;
+            
+            document.querySelectorAll('.code-input')[0].focus();
+        }
+
+        function moverAlSiguiente(input, indice) {
+            if (input.value.length === 1 && indice < 5) {
+                document.querySelectorAll('.code-input')[indice + 1].focus();
+            }
+            if (indice === 5 && input.value.length === 1) {
+                verificarCodigo();
+            }
+        }
+
+        function verificarCodigo() {
+            const inputs = document.querySelectorAll('.code-input');
+            const codigoIngresado = Array.from(inputs).map(i => i.value).join('');
+
+            if (codigoIngresado.length !== 6) {
+                alert('Por favor completa los 6 dígitos');
+                return;
+            }
+
+            if (codigoIngresado === codigoGenerado) {
+                usuarioLogueado = {
+                    email: emailTemp,
+                    nombre: emailTemp.split('@')[0],
+                    rol: emailTemp === 'coordinadora@usc.edu.co' ? 'COORDINADORA' : 'ESTUDIANTE'
+                };
+
+                localStorage.setItem('usuarioLogueado', JSON.stringify(usuarioLogueado));
+                document.getElementById('login-view').style.display = 'none';
+                mostrarApp();
+            } else {
+                alert('❌ Código incorrecto. Intenta de nuevo.');
+                Array.from(inputs).forEach(i => i.value = '');
+                inputs[0].focus();
+            }
+        }
+
+        function volverAlPaso1() {
+            document.getElementById('paso1-email').style.display = 'block';
+            document.getElementById('paso2-codigo').style.display = 'none';
+            document.getElementById('loginEmail').focus();
+            document.querySelectorAll('.code-input').forEach(i => i.value = '');
+        }
+
+        function mostrarApp() {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('app-view').style.display = 'block';
+
+            document.getElementById('user-email').textContent = usuarioLogueado.email;
+            document.getElementById('user-rol').textContent = usuarioLogueado.rol;
+
+            if (usuarioLogueado.rol === 'COORDINADORA') {
+                document.getElementById('header-titulo').textContent = '📊 Sistema de Radicación TG - USC Medicina (Panel Coordinadora)';
+                document.getElementById('header-subtitulo').textContent = 'Gestión de todos los expedientes';
+                document.getElementById('filtros-section').style.display = 'block';
+                cargarTabla();
+            } else {
+                document.getElementById('header-titulo').textContent = '📚 Portal del Estudiante - Radicación TG';
+                document.getElementById('header-subtitulo').textContent = 'Tus trabajos de grado';
+                document.getElementById('filtros-section').style.display = 'none';
+                cargarTablaMisExpedientes();
+            }
+        }
+
         let expedientes = [
             {
                 expediente: 'USCTG-202604-0001',
@@ -566,6 +893,48 @@
                     <td style="font-size: 11px;">${exp.ultima_actualizacion}</td>
                     <td>
                         <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="verDetalles(${idx})">Ver</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            actualizarEstadisticas();
+        }
+
+        function cargarTablaMisExpedientes() {
+            const tbody = document.getElementById('tabla-body');
+            const misExpedientes = expedientes.filter(e => e.email === usuarioLogueado.email);
+            
+            if (misExpedientes.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="23" style="text-align: center; padding: 30px; color: #999;">No tienes radicaciones aún. <strong style="color: #003d82;">+ Crear nueva</strong></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = misExpedientes.map((exp, idx) => `
+                <tr>
+                    <td><strong>${exp.expediente}</strong></td>
+                    <td>${exp.ano}</td>
+                    <td>${exp.estudiante}</td>
+                    <td>${exp.email}</td>
+                    <td>${exp.semestre}</td>
+                    <td>${exp.modalidad}</td>
+                    <td><span class="estado-badge estado-${exp.fase1_estado.toLowerCase().replace(' ', '-')}">${exp.fase1_estado}</span></td>
+                    <td>${exp.fase1_fecha}</td>
+                    <td><span class="estado-badge estado-${exp.fase2_estado.toLowerCase().replace(' ', '-')}">${exp.fase2_estado}</span></td>
+                    <td>${exp.fase2_fecha}</td>
+                    <td><span class="estado-badge estado-${exp.fase3_estado.toLowerCase().replace(' ', '-')}">${exp.fase3_estado}</span></td>
+                    <td>${exp.turnitin ? exp.turnitin + '%' : '-'}</td>
+                    <td>${exp.tutor_tematico}</td>
+                    <td>${exp.tutor_metodologico || '-'}</td>
+                    <td>${exp.jurado1 || '-'}</td>
+                    <td>${exp.jurado2 || '-'}</td>
+                    <td>${exp.fecha_sustentacion || '-'}</td>
+                    <td>${exp.linea_investigacion}</td>
+                    <td>${exp.financiacion}</td>
+                    <td>${exp.reconocimientos}</td>
+                    <td>${exp.ciudad}</td>
+                    <td style="font-size: 11px;">${exp.ultima_actualizacion}</td>
+                    <td>
+                        <button class="btn btn-primary" style="padding: 4px 8px; font-size: 11px;" onclick="verDetalles(${expedientes.indexOf(exp)})">Ver</button>
                     </td>
                 </tr>
             `).join('');
@@ -721,11 +1090,14 @@
         }
 
         function logout() {
-            alert('Sesión cerrada');
+            localStorage.removeItem('usuarioLogueado');
+            usuarioLogueado = null;
+            document.getElementById('app-view').style.display = 'none';
+            document.getElementById('login-view').style.display = 'flex';
+            document.getElementById('paso1-email').style.display = 'block';
+            document.getElementById('paso2-codigo').style.display = 'none';
+            document.getElementById('loginEmail').value = '';
         }
-
-        // Inicializar
-        cargarTabla();
     </script>
 </body>
 </html>
