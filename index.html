@@ -78,6 +78,10 @@
             const [tema, setTema] = useState('');
             const [tiene2, setTiene2] = useState(false);
             const [tiene3, setTiene3] = useState(false);
+            const [tutorTematico, setTutorTematico] = useState({ nombre: '', email: '', programa: '' });
+            const [tutorMetodologico, setTutorMetodologico] = useState({ nombre: '', email: '', programa: '' });
+            const [tieneTematico, setTieneTematico] = useState(false);
+            const [tieneMetodologico, setTieneMetodologico] = useState(false);
 
             const handleSubmit = () => {
                 if(!integrante1.nombre || !integrante1.semestre || !tema) {
@@ -100,8 +104,13 @@
                     integrante2: tiene2 ? integrante2 : null,
                     integrante3: tiene3 ? integrante3 : null,
                     tema,
+                    tutorTematicoSugerido: tieneTematico ? tutorTematico : null,
+                    tutorMetodologicoSugerido: tieneMetodologico ? tutorMetodologico : null,
+                    tutorTematicoAsignado: null,
+                    tutorMetodologicoAsignado: null,
                     email,
-                    fecha: new Date().toLocaleDateString()
+                    fecha: new Date().toLocaleDateString(),
+                    estado: 'pendiente'
                 });
                 alert('✅ Radicación exitosa!\n\nRadicado: ' + radicado);
             };
@@ -117,7 +126,6 @@
                     e('div', { className: 'bg-white rounded-xl shadow-md p-8' },
                         e('h2', { className: 'text-2xl font-bold mb-6' }, 'Información de Integrantes (máx 3)'),
 
-                        // INTEGRANTE 1
                         e('div', { className: 'mb-6 p-6 bg-blue-50 rounded-lg border border-blue-200' },
                             e('h3', { className: 'text-lg font-bold mb-4' }, '👤 INTEGRANTE 1 (Quién radica) *'),
                             e('div', { className: 'grid md:grid-cols-2 gap-4' },
@@ -132,7 +140,6 @@
                             )
                         ),
 
-                        // INTEGRANTE 2
                         e('div', { className: 'mb-6' },
                             e('label', { className: 'flex items-center mb-4' },
                                 e('input', { type: 'checkbox', checked: tiene2, onChange: (x) => setTiene2(x.target.checked), className: 'mr-2 w-4 h-4' }),
@@ -152,7 +159,6 @@
                             )
                         ),
 
-                        // INTEGRANTE 3
                         e('div', { className: 'mb-6' },
                             e('label', { className: 'flex items-center mb-4' },
                                 e('input', { type: 'checkbox', checked: tiene3, onChange: (x) => setTiene3(x.target.checked), disabled: !tiene2, className: 'mr-2 w-4 h-4' }),
@@ -172,13 +178,39 @@
                             )
                         ),
 
-                        // TEMA
                         e('div', { className: 'mb-6 p-6 bg-indigo-50 rounded-lg border border-indigo-200' },
                             e('h3', { className: 'text-lg font-bold mb-4' }, '📚 TEMA DEL TRABAJO *'),
                             e('input', { type: 'text', placeholder: 'Describe tu tema', value: tema, onChange: (x) => setTema(x.target.value), className: 'w-full px-4 py-2 border rounded-lg' })
                         ),
 
-                        // BOTONES
+                        e('div', { className: 'mb-6 p-6 bg-yellow-50 rounded-lg border border-yellow-200' },
+                            e('h3', { className: 'text-lg font-bold mb-4' }, '🎓 TUTORES PROPUESTOS (Opcional)'),
+                            
+                            e('div', { className: 'mb-4' },
+                                e('label', { className: 'flex items-center mb-4' },
+                                    e('input', { type: 'checkbox', checked: tieneTematico, onChange: (x) => setTieneTematico(x.target.checked), className: 'mr-2 w-4 h-4' }),
+                                    e('span', { className: 'font-semibold' }, 'Tutor Temático')
+                                ),
+                                tieneTematico && e('div', { className: 'grid md:grid-cols-3 gap-4 p-4 bg-white rounded-lg' },
+                                    e('input', { type: 'text', placeholder: 'Nombre', value: tutorTematico.nombre, onChange: (x) => setTutorTematico({...tutorTematico, nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('input', { type: 'email', placeholder: 'Email', value: tutorTematico.email, onChange: (x) => setTutorTematico({...tutorTematico, email: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('input', { type: 'text', placeholder: 'Programa', value: tutorTematico.programa, onChange: (x) => setTutorTematico({...tutorTematico, programa: x.target.value}), className: 'px-4 py-2 border rounded-lg' })
+                                )
+                            ),
+
+                            e('div', {},
+                                e('label', { className: 'flex items-center mb-4' },
+                                    e('input', { type: 'checkbox', checked: tieneMetodologico, onChange: (x) => setTieneMetodologico(x.target.checked), className: 'mr-2 w-4 h-4' }),
+                                    e('span', { className: 'font-semibold' }, 'Tutor Metodológico')
+                                ),
+                                tieneMetodologico && e('div', { className: 'grid md:grid-cols-3 gap-4 p-4 bg-white rounded-lg' },
+                                    e('input', { type: 'text', placeholder: 'Nombre', value: tutorMetodologico.nombre, onChange: (x) => setTutorMetodologico({...tutorMetodologico, nombre: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('input', { type: 'email', placeholder: 'Email', value: tutorMetodologico.email, onChange: (x) => setTutorMetodologico({...tutorMetodologico, email: x.target.value}), className: 'px-4 py-2 border rounded-lg' }),
+                                    e('input', { type: 'text', placeholder: 'Programa', value: tutorMetodologico.programa, onChange: (x) => setTutorMetodologico({...tutorMetodologico, programa: x.target.value}), className: 'px-4 py-2 border rounded-lg' })
+                                )
+                            )
+                        ),
+
                         e('div', { className: 'flex gap-4' },
                             e('button', { onClick: onBack, className: 'flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold' }, 'CANCELAR'),
                             e('button', { onClick: handleSubmit, className: 'flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold' }, '✓ ENVIAR RADICACIÓN')
@@ -251,6 +283,26 @@
                 const saved = localStorage.getItem('usc_radicaciones');
                 return saved ? JSON.parse(saved) : [];
             });
+            const [seleccionado, setSeleccionado] = useState(null);
+            const [nuevoTematico, setNuevoTematico] = useState('');
+            const [nuevoMetodologico, setNuevoMetodologico] = useState('');
+
+            const asignarTutores = (radicado) => {
+                const nuevasRads = radicaciones.map(r => 
+                    r.radicado_f1 === radicado 
+                        ? {
+                            ...r,
+                            tutorTematicoAsignado: nuevoTematico || null,
+                            tutorMetodologicoAsignado: nuevoMetodologico || null
+                          }
+                        : r
+                );
+                setRadicaciones(nuevasRads);
+                setSeleccionado(null);
+                setNuevoTematico('');
+                setNuevoMetodologico('');
+                alert('✓ Tutores asignados');
+            };
 
             const eliminarRadicado = (radicado) => {
                 if(confirm('¿Eliminar ' + radicado + '?')) {
@@ -260,7 +312,7 @@
             };
 
             const limpiarTodo = () => {
-                if(confirm('¿Eliminar TODAS las radicaciones? (Esta acción no se puede deshacer)')) {
+                if(confirm('¿Eliminar TODAS las radicaciones?')) {
                     setRadicaciones([]);
                     alert('✓ Limpiado');
                 }
@@ -269,6 +321,8 @@
             useEffect(() => {
                 localStorage.setItem('usc_radicaciones', JSON.stringify(radicaciones));
             }, [radicaciones]);
+
+            const radSeleccionada = seleccionado ? radicaciones.find(r => r.radicado_f1 === seleccionado) : null;
 
             return e('div', { className: 'min-h-screen bg-gray-50' },
                 e('header', { className: 'bg-gradient-to-r from-blue-700 to-blue-900 text-white shadow-lg' },
@@ -281,7 +335,47 @@
                     )
                 ),
                 e('main', { className: 'max-w-7xl mx-auto px-4 py-8' },
-                    e('div', { className: 'bg-white rounded-xl shadow-md p-6 mb-6' },
+                    seleccionado ? e('div', { className: 'bg-white rounded-xl shadow-md p-8 mb-6' },
+                        e('div', { className: 'flex justify-between items-center mb-6' },
+                            e('h2', { className: 'text-2xl font-bold' }, 'Asignar Tutores - ' + seleccionado),
+                            e('button', { onClick: () => setSeleccionado(null), className: 'px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700' }, '← Atrás')
+                        ),
+                        radSeleccionada && [
+                            e('div', { className: 'mb-6 p-4 bg-blue-50 rounded-lg' },
+                                e('p', { className: 'font-semibold mb-2' }, 'Estudiante: ' + radSeleccionada.integrante1.nombre),
+                                e('p', { className: 'font-semibold mb-4' }, 'Tema: ' + radSeleccionada.tema),
+                                
+                                e('div', { className: 'mb-4' },
+                                    e('label', { className: 'block font-semibold mb-2' }, '🎓 Tutor Temático'),
+                                    e('input', { 
+                                        type: 'text', 
+                                        placeholder: 'Nombre del tutor temático a asignar', 
+                                        value: nuevoTematico, 
+                                        onChange: (x) => setNuevoTematico(x.target.value),
+                                        className: 'w-full px-4 py-2 border rounded-lg'
+                                    }),
+                                    radSeleccionada.tutorTematicoAsignado && e('p', { className: 'text-sm text-green-600 mt-2' }, '✓ Asignado: ' + radSeleccionada.tutorTematicoAsignado)
+                                ),
+
+                                e('div', { className: 'mb-4' },
+                                    e('label', { className: 'block font-semibold mb-2' }, '🎓 Tutor Metodológico'),
+                                    e('input', { 
+                                        type: 'text', 
+                                        placeholder: 'Nombre del tutor metodológico a asignar', 
+                                        value: nuevoMetodologico, 
+                                        onChange: (x) => setNuevoMetodologico(x.target.value),
+                                        className: 'w-full px-4 py-2 border rounded-lg'
+                                    }),
+                                    radSeleccionada.tutorMetodologicoAsignado && e('p', { className: 'text-sm text-green-600 mt-2' }, '✓ Asignado: ' + radSeleccionada.tutorMetodologicoAsignado)
+                                ),
+
+                                e('button', { 
+                                    onClick: () => asignarTutores(seleccionado),
+                                    className: 'w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold'
+                                }, '✓ GUARDAR TUTORES')
+                            )
+                        ]
+                    ) : e('div', { className: 'bg-white rounded-xl shadow-md p-6 mb-6' },
                         e('div', { className: 'flex justify-between items-center mb-4' },
                             e('h2', { className: 'text-xl font-bold' }, '📊 FASE 1 - Solicitudes de Tutor'),
                             e('button', { onClick: limpiarTodo, className: 'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-semibold' }, '🗑️ Limpiar todo')
@@ -294,6 +388,7 @@
                                         e('th', { className: 'px-4 py-2 text-left' }, 'Integrantes'),
                                         e('th', { className: 'px-4 py-2 text-left' }, 'Email'),
                                         e('th', { className: 'px-4 py-2 text-left' }, 'Tema'),
+                                        e('th', { className: 'px-4 py-2 text-left' }, 'Tutores Asignados'),
                                         e('th', { className: 'px-4 py-2 text-center' }, 'Acciones')
                                     )
                                 ),
@@ -302,13 +397,20 @@
                                         let integrantes = rad.integrante1.nombre;
                                         if(rad.integrante2) integrantes += ', ' + rad.integrante2.nombre;
                                         if(rad.integrante3) integrantes += ', ' + rad.integrante3.nombre;
+                                        
+                                        let tutoresAsignados = [];
+                                        if(rad.tutorTematicoAsignado) tutoresAsignados.push('Temático: ' + rad.tutorTematicoAsignado);
+                                        if(rad.tutorMetodologicoAsignado) tutoresAsignados.push('Metodológico: ' + rad.tutorMetodologicoAsignado);
+                                        const tutoresText = tutoresAsignados.length > 0 ? tutoresAsignados.join(' | ') : '❌ Sin asignar';
+
                                         return e('tr', { key: rad.radicado_f1, className: 'border-b hover:bg-gray-50' },
                                             e('td', { className: 'px-4 py-2 font-semibold text-blue-600' }, rad.radicado_f1),
                                             e('td', { className: 'px-4 py-2 text-sm' }, integrantes),
                                             e('td', { className: 'px-4 py-2' }, rad.email),
                                             e('td', { className: 'px-4 py-2' }, rad.tema),
+                                            e('td', { className: 'px-4 py-2 text-sm font-semibold' }, tutoresText),
                                             e('td', { className: 'px-4 py-2 text-center space-x-2' },
-                                                e('button', { className: 'px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 font-semibold' }, '✓ Aprobar'),
+                                                e('button', { onClick: () => setSeleccionado(rad.radicado_f1), className: 'px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 font-semibold' }, '✏️ Asignar Tutores'),
                                                 e('button', { onClick: () => eliminarRadicado(rad.radicado_f1), className: 'px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 font-semibold' }, '🗑️ Eliminar')
                                             )
                                         );
